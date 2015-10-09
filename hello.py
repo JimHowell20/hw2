@@ -3,6 +3,7 @@ __author__ = 'jimmy'
 from skimage import data, io
 from skimage.filters import threshold_otsu
 from skimage.color import rgb2gray
+import matplotlib.pyplot as plt
 
 image = io.imread('test2.jpg')
 image = rgb2gray(image)
@@ -11,7 +12,6 @@ NumberOfRows = image.shape[0]
 NumberOfColumns = image.shape[1]
 
 ThresholdValue = threshold_otsu(image)
-print(ThresholdValue)
 
 # simpe thresholding
 for x in range(NumberOfRows):
@@ -27,7 +27,8 @@ for x in range(NumberOfRows):
 #io.imshow(image)
 #io.show()
 
-RegionInterval = 50
+NumberOfRegions = 0
+RegionInterval = 10
 
 CurrentRegion = RegionInterval
 
@@ -52,22 +53,22 @@ def CheckNeighborPixels(x,y):
             idk1 = 1000
             idk2 = 1000
 
-            if ((x-1) > 0):
+            if ((x-1) > -1):
                 leftValue = RegionValue(image[x-1,y])
-            if((x+1) < NumberOfColumns):
+            if((x+1) < NumberOfRows):
                 rightValue = RegionValue(image[x+1,y])
-            if ((y-1) > 0):
+            if ((y-1) > -1):
                 belowValue = RegionValue(image[x,y-1])
             if ((y+1) < NumberOfColumns):
                 aboveValue = RegionValue(image[x,y+1])
 
-            if ((x-1)>0) and ((y-1) > 0):
+            if ((x-1) > -1) and ((y-1) > -1):
                 upperLeft = RegionValue(image[x-1,y-1])
-            if ((x+1)<NumberOfColumns) and ((y-1) > 0):
+            if ((x+1) < NumberOfRows) and ((y-1) > -1):
                 upperRight = RegionValue(image[x+1,y-1])
-            if ((x+1)<NumberOfColumns) and ((y+1) < NumberOfColumns):
+            if ((x+1) < NumberOfRows) and ((y+1) < NumberOfColumns):
                 idk1 = RegionValue(image[x+1,y+1])
-            if ((x-1)>0) and ((y+1) < NumberOfColumns):
+            if ((x-1)> -1) and ((y+1) < NumberOfColumns):
                 idk1 = RegionValue(image[x-1,y+1])
 
             LowestNeighbor = min(leftValue,rightValue,belowValue,aboveValue,upperLeft,upperRight,idk1,idk2)
@@ -90,7 +91,9 @@ for x in range(NumberOfRows):
 
         elif newSection:
             CurrentRegion += RegionInterval
+            NumberOfRegions += 1
             newSection = False
 
-io.imshow(image)
+print(NumberOfRegions)
+io.imshow(image, cmap=plt.cm.gray)
 io.show()
