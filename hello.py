@@ -5,7 +5,7 @@ from skimage.filters import threshold_otsu
 from skimage.color import rgb2gray
 import matplotlib.pyplot as plt
 
-image = io.imread('test2.jpg')
+image = io.imread('hw2-2B.jpg')
 image = rgb2gray(image)
 
 NumberOfRows = image.shape[0]
@@ -28,9 +28,8 @@ for x in range(NumberOfRows):
 #io.show()
 
 NumberOfRegions = 0
-RegionInterval = 10
-
-CurrentRegion = RegionInterval
+RegionInterval = 1
+CurrentRegion = 2
 
 newSection = False
 
@@ -94,7 +93,7 @@ for x in range(NumberOfRows):
             NumberOfRegions += 1
             newSection = False
 
-print(NumberOfRegions)
-io.imshow(image, cmap=plt.cm.terrain, interpolation='none', vmin=0, vmax = 100)
+print(NumberOfRegions, "Number Of Regions")
+io.imshow(image, cmap=plt.cm.cubehelix, interpolation='none')
 
 io.show()
