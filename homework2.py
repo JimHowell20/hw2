@@ -1,6 +1,6 @@
 __author__ = 'jimmy'
 
-fileName = 'hw2-2A.jpg'
+fileName = 'test2.jpg'
 
 from skimage import data, io
 from skimage.filters import threshold_otsu
@@ -15,16 +15,27 @@ NumberOfColumns = image.shape[1]
 
 ThresholdValue = threshold_otsu(image)
 
+numberOfBlackPixels = 0
+numberOfWhitePixels = 0
 # simpe thresholding
 for x in range(NumberOfRows):
     for y in range(NumberOfColumns):
         if (image[x,y] > ThresholdValue):
-            #black / foreground
+            #black
             image[x,y] = 0
+            numberOfBlackPixels += 1
         else:
-            #white / background
+            #white
             image[x,y] = 1
+            numberOfWhitePixels += 1
 
+#Assumption - Background has more pixels than foreground
+
+# foreground pixels are black
+ForegroundPixelValue = 0
+if ( numberOfBlackPixels > numberOfWhitePixels):
+    # foreground pixels as white
+    ForegroundPixelValue = 1
 
 RegionInterval = 1
 CurrentRegion = 2
@@ -83,7 +94,7 @@ def CheckNeighborPixels(x,y):
 #first pass
 for x in range(NumberOfRows):
     for y in range(NumberOfColumns):
-        if (image[x,y] == 0):
+        if (image[x,y] == ForegroundPixelValue):
 
             LowestNeighbor = CheckNeighborPixels(x,y)
 
@@ -130,9 +141,11 @@ for x in range(NumberOfRows):
 
 print("Number Of Regions:", len(SetOfRegions))
 
+index = 1
 for x in SetOfRegions:
     Area = AreaOfRegion[x]
-    ps = "Area of Region " + str(x) + " : " + str(Area)
+    ps = "Area of Region " + str(index) + " : " + str(Area)
+    index += 1
     print(ps)
 
 io.imshow(image, cmap=plt.cm.cubehelix, interpolation='none', vmin = 0, vmax = 8, origin='upper')
