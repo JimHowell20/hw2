@@ -34,9 +34,12 @@ for x in range(NumberOfRows):
 # foreground pixels are black
 ForegroundPixelValue = 0
 if ( numberOfBlackPixels > numberOfWhitePixels):
-    # foreground pixels as white
+    # foreground pixels are white
     ForegroundPixelValue = 1
 
+BackgroundPixelValue = 1 - ForegroundPixelValue
+
+#initialize region tag / interval
 RegionInterval = 1
 CurrentRegion = 2
 newSection = False
@@ -127,26 +130,61 @@ for x in range(NumberOfRows):
 SetOfRegions = set()
 
 AreaOfRegion = {}
+RowCountOfRegion = {}
+ColumnCountOfRegion = {}
+
 # Third Pass over Image to Count Number of Regions
 for x in range(NumberOfRows):
     for y in range(NumberOfColumns):
+
         regionNumber = image[x,y]
+
         if (regionNumber != 0 and regionNumber != 1):
+
             SetOfRegions.add(int(regionNumber))
-            initCheck = AreaOfRegion.get(regionNumber)
-            if (initCheck == None):
+            AreaInitCheck = AreaOfRegion.get(regionNumber)
+            RowInitCheck = RowCountOfRegion.get(regionNumber)
+            ColumnInitCheck = ColumnCountOfRegion.get(regionNumber)
+
+            if (AreaInitCheck == None):
                 AreaOfRegion[regionNumber] = 1
             else:
                 AreaOfRegion[regionNumber] += 1
+
+            if (RowInitCheck == None):
+                RowCountOfRegion[regionNumber] = x
+            else:
+                RowCountOfRegion[regionNumber] += x
+
+            if (ColumnInitCheck == None):
+                ColumnCountOfRegion[regionNumber] = y
+            else:
+                ColumnCountOfRegion[regionNumber] += y
+
 
 print("Number Of Regions:", len(SetOfRegions))
 
 index = 1
 for x in SetOfRegions:
     Area = AreaOfRegion[x]
-    ps = "Area of Region " + str(index) + " : " + str(Area)
+    RowCount = RowCountOfRegion[x]
+    ColumnCount = ColumnCountOfRegion[x]
+
+    rAVG = RowCount/float(Area)
+    cAVG = ColumnCount/float(Area)
+
+    ps1 = "Region " + str(index) + " Info : "
+    ps2 = " Area " + str(Area)
+    ps3 = " r Average " + str(rAVG)
+    ps4 = " c Average " + str(cAVG)
+
+    print(ps1)
+    print(ps2)
+    print(ps3)
+    print(ps4)
+    print("")
     index += 1
-    print(ps)
+
 
 io.imshow(image, cmap=plt.cm.cubehelix, interpolation='none', vmin = 0, vmax = 8, origin='upper')
 io.show()
