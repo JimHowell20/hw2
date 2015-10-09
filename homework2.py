@@ -1,6 +1,6 @@
 __author__ = 'jimmy'
 
-fileName = 'test2.jpg'
+fileName = 'hw2-2A.jpg'
 
 from skimage import data, io
 from skimage.filters import threshold_otsu
@@ -114,14 +114,26 @@ for x in range(NumberOfRows):
 
 
 SetOfRegions = set()
+
+AreaOfRegion = {}
 # Third Pass over Image to Count Number of Regions
 for x in range(NumberOfRows):
     for y in range(NumberOfColumns):
         regionNumber = image[x,y]
         if (regionNumber != 0 and regionNumber != 1):
-            SetOfRegions.add(regionNumber)
+            SetOfRegions.add(int(regionNumber))
+            initCheck = AreaOfRegion.get(regionNumber)
+            if (initCheck == None):
+                AreaOfRegion[regionNumber] = 1
+            else:
+                AreaOfRegion[regionNumber] += 1
 
 print("Number Of Regions:", len(SetOfRegions))
+
+for x in SetOfRegions:
+    Area = AreaOfRegion[x]
+    ps = "Area of Region " + str(x) + " : " + str(Area)
+    print(ps)
 
 io.imshow(image, cmap=plt.cm.cubehelix, interpolation='none', vmin = 0, vmax = 8, origin='upper')
 io.show()
