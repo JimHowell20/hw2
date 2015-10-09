@@ -95,5 +95,6 @@ for x in range(NumberOfRows):
             newSection = False
 
 print(NumberOfRegions)
-io.imshow(image, cmap=plt.cm.gray)
+io.imshow(image, cmap=plt.cm.terrain, interpolation='none', vmin=0, vmax = 100)
+
 io.show()
