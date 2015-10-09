@@ -25,7 +25,7 @@ for x in range(NumberOfRows):
             #white / background
             image[x,y] = 1
 
-NumberOfRegions = 0
+
 RegionInterval = 1
 CurrentRegion = 2
 newSection = False
@@ -93,12 +93,11 @@ for x in range(NumberOfRows):
 
         elif newSection:
             CurrentRegion += RegionInterval
-            NumberOfRegions += 1
             newSection = False
 
-print(NumberOfRegions, "Number Of Regions")
-
 lowestValueForRegion = {}
+
+SetOfRegions = set()
 
 # Second Pass over Image
 for x in range(NumberOfRows):
@@ -113,8 +112,10 @@ for x in range(NumberOfRows):
                 value = temp
 
         if (value != None):
+            SetOfRegions.add(value)
             image[x,y] = value
 
-print(CurrentRegion,"current Region")
+print("Number Of Regions:", len(SetOfRegions))
+
 io.imshow(image, cmap=plt.cm.cubehelix, interpolation='none', vmin = 0, vmax = 8)
 io.show()
