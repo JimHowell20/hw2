@@ -1,6 +1,6 @@
 __author__ = 'jimmy'
 
-fileName = 'hw2-3A.jpg'
+fileName = 'test2.jpg'
 
 from skimage import data, io
 from skimage.filters import threshold_otsu
