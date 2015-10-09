@@ -35,8 +35,11 @@ newSection = False
 
 ConflictList = []
 
-def IsARegionValue(x):
-    return (x != 0) and (x != 1)
+def RegionValue(x):
+    if (x != 0) and (x != 1):
+        return x
+    else:
+        return 1000
 
 def CheckNeighborPixels(x,y):
 
@@ -49,23 +52,23 @@ def CheckNeighborPixels(x,y):
             idk1 = 1000
             idk2 = 1000
 
-            if ((x-1) > 0) and IsARegionValue(image[x-1,y]):
-                leftValue = image[x-1,y]
-            if((x+1) < NumberOfColumns) and (image[x+1,y] != 0) and (image[x+1,y] != 1):
-                rightValue = image[x+1,y]
-            if ((y-1) > 0) and (image[x,y-1] != 0) and (image[x,y-1] != 1):
-                belowValue = image[x,y-1]
-            if ((y+1) < NumberOfColumns) and (image[x,y+1] != 0) and (image[x,y+1] != 1):
-                aboveValue = image[x,y+1]
+            if ((x-1) > 0):
+                leftValue = RegionValue(image[x-1,y])
+            if((x+1) < NumberOfColumns):
+                rightValue = RegionValue(image[x+1,y])
+            if ((y-1) > 0):
+                belowValue = RegionValue(image[x,y-1])
+            if ((y+1) < NumberOfColumns):
+                aboveValue = RegionValue(image[x,y+1])
 
-            if ((x-1)>0) and ((y-1) > 0) and IsARegionValue(image[x-1,y-1]):
-                upperLeft = image[x-1,y-1]
-            if ((x+1)<NumberOfColumns) and ((y-1) > 0) and IsARegionValue(image[x+1,y-1]):
-                upperRight = image[x+1,y-1]
-            if ((x+1)<NumberOfColumns) and ((y+1) < NumberOfColumns) and IsARegionValue(image[x+1,y+1]):
-                idk1 = image[x+1,y+1]
-            if ((x-1)>0) and ((y+1) < NumberOfColumns) and IsARegionValue(image[x-1,y+1]):
-                idk1 = image[x-1,y+1]
+            if ((x-1)>0) and ((y-1) > 0):
+                upperLeft = RegionValue(image[x-1,y-1])
+            if ((x+1)<NumberOfColumns) and ((y-1) > 0):
+                upperRight = RegionValue(image[x+1,y-1])
+            if ((x+1)<NumberOfColumns) and ((y+1) < NumberOfColumns):
+                idk1 = RegionValue(image[x+1,y+1])
+            if ((x-1)>0) and ((y+1) < NumberOfColumns):
+                idk1 = RegionValue(image[x-1,y+1])
 
             LowestNeighbor = min(leftValue,rightValue,belowValue,aboveValue,upperLeft,upperRight,idk1,idk2)
 
