@@ -123,5 +123,5 @@ for x in range(NumberOfRows):
 
 print("Number Of Regions:", len(SetOfRegions))
 
-io.imshow(image, cmap=plt.cm.cubehelix, interpolation='none', vmin = 0, vmax = 10)
+io.imshow(image, cmap=plt.cm.cubehelix, interpolation='none', vmin = 0, vmax = 8, origin='upper')
 io.show()
