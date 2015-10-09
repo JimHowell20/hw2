@@ -1,11 +1,13 @@
 __author__ = 'jimmy'
 
+fileName = 'test2.jpg'
+
 from skimage import data, io
 from skimage.filters import threshold_otsu
 from skimage.color import rgb2gray
 import matplotlib.pyplot as plt
 
-image = io.imread('hw2-2B.jpg')
+image = io.imread(fileName)
 image = rgb2gray(image)
 
 NumberOfRows = image.shape[0]
@@ -23,23 +25,18 @@ for x in range(NumberOfRows):
             #white / background
             image[x,y] = 1
 
-
-#io.imshow(image)
-#io.show()
-
 NumberOfRegions = 0
 RegionInterval = 1
 CurrentRegion = 2
-
 newSection = False
 
-ConflictList = []
+testDict = {}
 
 def RegionValue(x):
     if (x != 0) and (x != 1):
-        return x
+        return int(x)
     else:
-        return 1000
+        return int(1000)
 
 def CheckNeighborPixels(x,y):
 
@@ -72,6 +69,14 @@ def CheckNeighborPixels(x,y):
 
             LowestNeighbor = min(leftValue,rightValue,belowValue,aboveValue,upperLeft,upperRight,idk1,idk2)
 
+            NeighborList = [leftValue, rightValue, belowValue, aboveValue, upperRight, upperLeft, idk1, idk2]
+            if (LowestNeighbor < CurrentRegion):
+                image[x,y] = LowestNeighbor
+                for value in NeighborList:
+                    if (value != LowestNeighbor) and (value != 1000):
+                        temp = testDict.get(value)
+                        if (temp == None) or (LowestNeighbor < temp):
+                            testDict[value] = LowestNeighbor
 
             return LowestNeighbor
 
@@ -82,9 +87,7 @@ for x in range(NumberOfRows):
 
             LowestNeighbor = CheckNeighborPixels(x,y)
 
-            if (LowestNeighbor < CurrentRegion):
-                image[x,y] = LowestNeighbor
-            else:
+            if (LowestNeighbor >= CurrentRegion):
                 image[x,y] = CurrentRegion
                 newSection = True
 
@@ -94,6 +97,24 @@ for x in range(NumberOfRows):
             newSection = False
 
 print(NumberOfRegions, "Number Of Regions")
-io.imshow(image, cmap=plt.cm.cubehelix, interpolation='none')
 
+lowestValueForRegion = {}
+
+# Second Pass over Image
+for x in range(NumberOfRows):
+    for y in range(NumberOfColumns):
+        regionNumber = image[x,y]
+        value = testDict.get(regionNumber)
+
+        temp = value
+        while (temp != None):
+            temp = testDict.get(temp)
+            if (temp != None):
+                value = temp
+
+        if (value != None):
+            image[x,y] = value
+
+print(CurrentRegion,"current Region")
+io.imshow(image, cmap=plt.cm.cubehelix, interpolation='none', vmin = 0, vmax = 8)
 io.show()
