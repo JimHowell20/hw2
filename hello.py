@@ -39,10 +39,7 @@ newSection = False
 def IsARegionValue(x):
     return (x != 0) and (x != 1)
 
-#first pass
-for x in range(NumberOfRows):
-    for y in range(NumberOfColumns):
-        if (image[x,y] == 0):
+def CheckNeighborPixels(x,y):
 
             leftValue  = 1000
             rightValue = 1000
@@ -72,6 +69,16 @@ for x in range(NumberOfRows):
                 idk1 = image[x-1,y+1]
 
             LowestNeighbor = min(leftValue,rightValue,belowValue,aboveValue,upperLeft,upperRight,idk1,idk2)
+
+
+            return LowestNeighbor
+
+#first pass
+for x in range(NumberOfRows):
+    for y in range(NumberOfColumns):
+        if (image[x,y] == 0):
+
+            LowestNeighbor = CheckNeighborPixels(x,y)
 
             if (LowestNeighbor < CurrentRegion):
                 image[x,y] = LowestNeighbor
