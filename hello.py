@@ -7,14 +7,11 @@ from skimage.color import rgb2gray
 image = io.imread('test2.jpg')
 image = rgb2gray(image)
 
-#thresh = threshold_otsu(image)
-thresh = threshold_otsu(image)
-print(thresh)
-
 NumberOfRows = image.shape[0]
 NumberOfColumns = image.shape[1]
 
-ThresholdValue = 0.09
+ThresholdValue = threshold_otsu(image)
+print(ThresholdValue)
 
 # simpe thresholding
 for x in range(NumberOfRows):
@@ -35,6 +32,8 @@ RegionInterval = 50
 CurrentRegion = RegionInterval
 
 newSection = False
+
+ConflictList = []
 
 def IsARegionValue(x):
     return (x != 0) and (x != 1)
