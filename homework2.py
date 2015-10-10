@@ -13,6 +13,9 @@ def RegionValue(y):
     else:
         return int(1000)
 
+def RoundFloat(x):
+    return  int((x * 100) + 0.5) / 100.0
+
 def CheckNeighborPixels(y,x,array, storeValues):
 
             leftValue  = 1000
@@ -463,9 +466,6 @@ for y in range(NumberOfRows):
 
                 PerimeterOfRegion[InnerRegionValue] = Circumference
 
-                ps = "Circumference for region " + str(index) + " " + str(Circumference)
-                print(ps)
-
 
 print("Number Of Regions:", len(SetOfRegions))
 
@@ -474,6 +474,7 @@ for region in SetOfRegions:
     Area = AreaOfRegion[region]
     RowCount = RowCountOfRegion[region]
     ColumnCount = ColumnCountOfRegion[region]
+    PerimeterCount = PerimeterOfRegion[region]
     Mrr = rrOfRegion[region]/float(Area)
     Mrc = rcOfRegion[region]/float(Area)
     Mcc = ccOfRegion[region]/float(Area)
@@ -482,12 +483,13 @@ for region in SetOfRegions:
     cAVG = ColumnCount/float(Area)
 
     ps1 = "Region " + str(index) + " Info : "
-    ps2 = " Area " + str(Area)
-    ps3 = " r Average " + str(rAVG)
-    ps4 = " c Average " + str(cAVG)
-    ps5 = " Mrr " + str(Mrr)
-    ps6 = " Mrc " + str(Mrc)
-    ps7 = " Mcc " + str(Mcc)
+    ps2 = " Area " + str(RoundFloat(Area))
+    ps3 = " r Average " + str(RoundFloat(rAVG))
+    ps4 = " c Average " + str(RoundFloat(cAVG))
+    ps5 = " Mrr " + str(RoundFloat(Mrr))
+    ps6 = " Mrc " + str(RoundFloat(Mrc))
+    ps7 = " Mcc " + str(RoundFloat(Mcc))
+    ps8 = " Perimeter " + str(RoundFloat(PerimeterCount))
 
     print(ps1)
     print(ps2)
@@ -496,6 +498,7 @@ for region in SetOfRegions:
     print(ps5)
     print(ps6)
     print(ps7)
+    print(ps8)
     print("")
     index += 1
 
