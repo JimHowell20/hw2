@@ -1,6 +1,6 @@
 __author__ = 'jimmx'
 
-fileName = 'test2.jpg'
+fileName = 'hw2-3A.jpg'
 
 from skimage import data, io
 from skimage.filters import threshold_otsu
@@ -57,7 +57,7 @@ def CheckNeighborPixels(y,x,array):
 
             return LowestNeighbor
 
-def NeighborPixelIsEyualToValue(y,x,array,value):
+def NeighborPixelIsEqualToValue(y,x,array,value):
 
             leftValue  = 1000
             rightValue = 1000
@@ -97,6 +97,27 @@ def NeighborPixelIsEyualToValue(y,x,array,value):
                 return True
             else:
                 return False
+
+def Check4NeighborPixels(y,x,array):
+
+            leftValue  = 1000
+            rightValue = 1000
+            belowValue = 1000
+            aboveValue = 1000
+
+            if ((x-1) > -1):
+                leftValue = array[y,x-1]
+            if ((x+1) < NumberOfColumns):
+                rightValue = array[y,x+1]
+            if((y+1) < NumberOfRows):
+                belowValue = array[y+1,x]
+            if ((y-1) > -1):
+                aboveValue = array[y-1,x]
+
+            LowestValue = min(leftValue,rightValue,belowValue,aboveValue)
+
+            return LowestValue
+
 
 #START of PROGRAM
 image = io.imread(fileName)
@@ -139,14 +160,14 @@ for y in range(NumberOfRows):
     for x in range(NumberOfColumns):
         if (image[y,x] == ForegroundPixelValue):
 
-            shouldDilate = NeighborPixelIsEyualToValue(y,x, image, BackgroundPixelValue)
+            shouldDilate = NeighborPixelIsEqualToValue(y,x, image, BackgroundPixelValue)
 
             if (shouldDilate):
                 image2[y,x] = BackgroundPixelValue
 
-io.imshow(image2)
-io.show()
-
+# io.imshow(image2)
+# io.show()
+#
 
 image3 = image2.copy()
 # Dilation - background checks Neighboring foreground pixels, and turns into foreground if necessary
@@ -154,14 +175,14 @@ for y in range(NumberOfRows):
     for x in range(NumberOfColumns):
         if (image2[y,x] == BackgroundPixelValue):
 
-            shouldDilate = NeighborPixelIsEyualToValue(y,x,image2, ForegroundPixelValue)
+            shouldDilate = NeighborPixelIsEqualToValue(y,x,image2, ForegroundPixelValue)
 
             if (shouldDilate):
                 image3[y,x] = ForegroundPixelValue
 
 
-io.imshow(image3)
-io.show()
+# io.imshow(image3)
+# io.show()
 
 image = image3
 
@@ -211,13 +232,22 @@ AreaOfRegion = {}
 RowCountOfRegion = {}
 ColumnCountOfRegion = {}
 
+PerimeterImage = image.copy()
+
 # Third Pass over Image to Count Number of Regions
 for y in range(NumberOfRows):
     for x in range(NumberOfColumns):
 
         regionNumber = image[y,x]
 
-        if (regionNumber != 0 and regionNumber != 1):
+        if regionNumber != 0 and regionNumber != 1:
+
+            lowestNeighbor = Check4NeighborPixels(y,x,image)
+
+            if lowestNeighbor == BackgroundPixelValue:
+                PerimeterImage[y,x] = 50
+            else:
+                PerimeterImage[y,x] = regionNumber
 
             SetOfRegions.add(int(regionNumber))
             AreaInitCheck = AreaOfRegion.get(regionNumber)
@@ -315,5 +345,8 @@ for region in SetOfRegions:
     index += 1
 
 
-io.imshow(image, cmap=plt.cm.cubehelix, interpolation='none', vmin = 0, vmax = 8, origin='upper')
+# io.imshow(image, cmap=plt.cm.cubehelix, interpolation='none', vmin = 0, vmax = 8, origin='upper')
+# io.show()
+
+io.imshow(PerimeterImage, cmap=plt.cm.cubehelix, interpolation='none', vmin = 0, vmax = 50, origin='upper')
 io.show()
