@@ -129,7 +129,7 @@ if ( numberOfBlackPixels > numberOfWhitePixels):
 BackgroundPixelValue = 1 - ForegroundPixelValue
 
 image2 = image.copy()
-# Do Dilation
+# Do
 for x in range(NumberOfRows):
     for y in range(NumberOfColumns):
         if (image[x,y] == BackgroundPixelValue):
@@ -140,8 +140,8 @@ for x in range(NumberOfRows):
                 image2[x,y] = ForegroundPixelValue
 
 
-io.imshow(image2)
-io.show()
+# io.imshow(image2)
+# io.show()
 
 
 image3 = image2.copy()
@@ -156,8 +156,8 @@ for x in range(NumberOfRows):
             if (shouldDilate):
                 image3[x,y] = BackgroundPixelValue
 
-io.imshow(image3)
-io.show()
+# io.imshow(image3)
+# io.show()
 
 #initialize region tag / interval
 RegionInterval = 1
