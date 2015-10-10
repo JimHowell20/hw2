@@ -7,45 +7,6 @@ from skimage.filters import threshold_otsu
 from skimage.color import rgb2gray
 import matplotlib.pyplot as plt
 
-image = io.imread(fileName)
-image = rgb2gray(image)
-
-NumberOfRows = image.shape[0]
-NumberOfColumns = image.shape[1]
-
-ThresholdValue = threshold_otsu(image)
-
-numberOfBlackPixels = 0
-numberOfWhitePixels = 0
-# simpe thresholding
-for x in range(NumberOfRows):
-    for y in range(NumberOfColumns):
-        if (image[x,y] > ThresholdValue):
-            #black
-            image[x,y] = 0
-            numberOfBlackPixels += 1
-        else:
-            #white
-            image[x,y] = 1
-            numberOfWhitePixels += 1
-
-#Assumption - Background has more pixels than foreground
-
-# foreground pixels are black
-ForegroundPixelValue = 0
-if ( numberOfBlackPixels > numberOfWhitePixels):
-    # foreground pixels are white
-    ForegroundPixelValue = 1
-
-BackgroundPixelValue = 1 - ForegroundPixelValue
-
-#initialize region tag / interval
-RegionInterval = 1
-CurrentRegion = 2
-newSection = False
-
-testDict = {}
-
 def RegionValue(x):
     if (x != 0) and (x != 1):
         return int(x)
@@ -93,6 +54,48 @@ def CheckNeighborPixels(x,y):
                             testDict[value] = LowestNeighbor
 
             return LowestNeighbor
+
+
+
+#START of PROGRAM
+image = io.imread(fileName)
+image = rgb2gray(image)
+
+NumberOfRows = image.shape[0]
+NumberOfColumns = image.shape[1]
+
+ThresholdValue = threshold_otsu(image)
+
+numberOfBlackPixels = 0
+numberOfWhitePixels = 0
+# simpe thresholding
+for x in range(NumberOfRows):
+    for y in range(NumberOfColumns):
+        if (image[x,y] > ThresholdValue):
+            #black
+            image[x,y] = 0
+            numberOfBlackPixels += 1
+        else:
+            #white
+            image[x,y] = 1
+            numberOfWhitePixels += 1
+
+#Assumption - Background has more pixels than foreground
+
+# foreground pixels are black
+ForegroundPixelValue = 0
+if ( numberOfBlackPixels > numberOfWhitePixels):
+    # foreground pixels are white
+    ForegroundPixelValue = 1
+
+BackgroundPixelValue = 1 - ForegroundPixelValue
+
+#initialize region tag / interval
+RegionInterval = 1
+CurrentRegion = 2
+newSection = False
+
+testDict = {}
 
 #first pass
 for x in range(NumberOfRows):
