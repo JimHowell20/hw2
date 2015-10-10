@@ -1,6 +1,6 @@
 __author__ = 'jimmy'
 
-fileName = 'test2.jpg'
+fileName = 'hw2-3A.jpg'
 
 from skimage import data, io
 from skimage.filters import threshold_otsu
@@ -55,6 +55,43 @@ def CheckNeighborPixels(x,y):
 
             return LowestNeighbor
 
+def NeighborPixelIsEqualToValue(x,y,array,value):
+
+            leftValue  = 1000
+            rightValue = 1000
+            belowValue = 1000
+            aboveValue = 1000
+            upperRight = 1000
+            upperLeft  = 1000
+            idk1 = 1000
+            idk2 = 1000
+
+            if ((x-1) > -1):
+                leftValue = array[x-1,y]
+            if((x+1) < NumberOfRows):
+                rightValue = array[x+1,y]
+            if ((y-1) > -1):
+                belowValue = array[x,y-1]
+            if ((y+1) < NumberOfColumns):
+                aboveValue = array[x,y+1]
+
+            if ((x-1) > -1) and ((y-1) > -1):
+                upperLeft = array[x-1,y-1]
+            if ((x+1) < NumberOfRows) and ((y-1) > -1):
+                upperRight = array[x+1,y-1]
+            if ((x+1) < NumberOfRows) and ((y+1) < NumberOfColumns):
+                idk1 = array[x+1,y+1]
+            if ((x-1)> -1) and ((y+1) < NumberOfColumns):
+                idk1 = array[x-1,y+1]
+
+            NeighborList = [leftValue, rightValue, belowValue, aboveValue, upperRight, upperLeft, idk1, idk2]
+
+            for val in NeighborList:
+                if val == value:
+                    return True
+
+            return False
+
 
 
 #START of PROGRAM
@@ -68,6 +105,7 @@ ThresholdValue = threshold_otsu(image)
 
 numberOfBlackPixels = 0
 numberOfWhitePixels = 0
+
 # simpe thresholding
 for x in range(NumberOfRows):
     for y in range(NumberOfColumns):
@@ -89,6 +127,37 @@ if ( numberOfBlackPixels > numberOfWhitePixels):
     ForegroundPixelValue = 1
 
 BackgroundPixelValue = 1 - ForegroundPixelValue
+
+image2 = image.copy()
+# Do Dilation
+for x in range(NumberOfRows):
+    for y in range(NumberOfColumns):
+        if (image[x,y] == BackgroundPixelValue):
+
+            shouldDilate = NeighborPixelIsEqualToValue(x,y,image, ForegroundPixelValue)
+
+            if (shouldDilate):
+                image2[x,y] = ForegroundPixelValue
+
+
+io.imshow(image2)
+io.show()
+
+
+image3 = image2.copy()
+
+# Do Erosion
+for x in range(NumberOfRows):
+    for y in range(NumberOfColumns):
+        if (image2[x,y] == ForegroundPixelValue):
+
+            shouldDilate = NeighborPixelIsEqualToValue(x,y, image2, BackgroundPixelValue)
+
+            if (shouldDilate):
+                image3[x,y] = BackgroundPixelValue
+
+io.imshow(image3)
+io.show()
 
 #initialize region tag / interval
 RegionInterval = 1
