@@ -11,7 +11,17 @@ def RegionValue(y):
     if (y != 0) and (y != 1):
         return int(y)
     else:
+
         return int(1000)
+
+def UpdateDictKeyValue(dictionary,key,value):
+    valueCheck = dictionary.get(key)
+
+    if valueCheck == None:
+        dictionary[key] = value
+    else:
+        dictionary[key] += value
+
 
 def RoundFloat(x):
     return  int((x * 100) + 0.5) / 100.0
@@ -382,24 +392,11 @@ for y in range(NumberOfRows):
                 PerimeterImage[y,x] = regionNumber
 
             SetOfRegions.add(int(regionNumber))
-            AreaInitCheck = AreaOfRegion.get(regionNumber)
-            RowInitCheck = RowCountOfRegion.get(regionNumber)
-            ColumnInitCheck = ColumnCountOfRegion.get(regionNumber)
 
-            if AreaInitCheck == None:
-                AreaOfRegion[regionNumber] = 1
-            else:
-                AreaOfRegion[regionNumber] += 1
+            UpdateDictKeyValue(AreaOfRegion,regionNumber,1)
+            UpdateDictKeyValue(RowCountOfRegion,regionNumber,y)
+            UpdateDictKeyValue(ColumnCountOfRegion,regionNumber,x)
 
-            if RowInitCheck == None:
-                RowCountOfRegion[regionNumber] = y
-            else:
-                RowCountOfRegion[regionNumber] += y
-
-            if ColumnInitCheck == None:
-                ColumnCountOfRegion[regionNumber] = x
-            else:
-                ColumnCountOfRegion[regionNumber] += x
 
 rrOfRegion = {}
 rcOfRegion = {}
@@ -428,41 +425,14 @@ for y in range(NumberOfRows):
             if regionPixelNumber == PerimeterRegionID:
 
                 distance = DistanceBetweenTwoPoints(y,x,rAVG,cAVG)
-                mrdInitCheck = mrdOfRegion.get(regionNumber)
 
-                if mrdInitCheck == None:
-                    mrdOfRegion[regionNumber] = distance
-                else:
-                    mrdOfRegion[regionNumber] += distance
-
-                PPInitCheck = PerimeterPixelCountOfRegion.get(regionNumber)
-
-                if PPInitCheck == None:
-                    PerimeterPixelCountOfRegion[regionNumber] = 1
-                else:
-                    PerimeterPixelCountOfRegion[regionNumber] += 1
+                UpdateDictKeyValue(mrdOfRegion,regionNumber,distance)
+                UpdateDictKeyValue(PerimeterPixelCountOfRegion,regionNumber,1)
 
 
-            rrInitCheck = rrOfRegion.get(regionNumber)
-
-            if rrInitCheck == None:
-                rrOfRegion[regionNumber] = (row - rAVG)**2
-            else:
-                rrOfRegion[regionNumber] += (row - rAVG)**2
-
-            rcInitCheck = rcOfRegion.get(regionNumber)
-
-            if rcInitCheck == None:
-                rcOfRegion[regionNumber] = (row - rAVG)*(column - cAVG)
-            else:
-                rcOfRegion[regionNumber] += (row - rAVG)*(column - cAVG)
-
-            ccInitCheck = ccOfRegion.get(regionNumber)
-
-            if ccInitCheck == None:
-                ccOfRegion[regionNumber] = (column - cAVG)**2
-            else:
-                ccOfRegion[regionNumber] += (column - cAVG)**2
+            UpdateDictKeyValue(rrOfRegion,regionNumber,(row - rAVG)**2)
+            UpdateDictKeyValue(rcOfRegion,regionNumber,(row - rAVG)*(column - cAVG))
+            UpdateDictKeyValue(ccOfRegion,regionNumber,(column - cAVG)**2)
 
 
 # Fifth Pass - Walk Along Perimeter
