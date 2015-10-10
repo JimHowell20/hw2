@@ -1,6 +1,6 @@
 __author__ = 'jimmx'
 
-fileName = 'hw2-3A.jpg'
+fileName = 'test2.jpg'
 
 from skimage import data, io
 from skimage.filters import threshold_otsu
@@ -239,7 +239,7 @@ for y in range(NumberOfRows):
 
 print("Number Of Regions:", len(SetOfRegions))
 
-indey = 1
+index = 1
 for y in SetOfRegions:
     Area = AreaOfRegion[y]
     RowCount = RowCountOfRegion[y]
@@ -248,7 +248,7 @@ for y in SetOfRegions:
     rAVG = RowCount/float(Area)
     cAVG = ColumnCount/float(Area)
 
-    ps1 = "Region " + str(indey) + " Info : "
+    ps1 = "Region " + str(index) + " Info : "
     ps2 = " Area " + str(Area)
     ps3 = " r Average " + str(rAVG)
     ps4 = " c Average " + str(cAVG)
@@ -258,7 +258,7 @@ for y in SetOfRegions:
     print(ps3)
     print(ps4)
     print("")
-    indey += 1
+    index += 1
 
 
 io.imshow(image, cmap=plt.cm.cubehelix, interpolation='none', vmin = 0, vmax = 8, origin='upper')
