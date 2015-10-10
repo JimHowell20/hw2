@@ -239,14 +239,59 @@ for y in range(NumberOfRows):
             else:
                 ColumnCountOfRegion[regionNumber] += x
 
+rrOfRegion = {}
+rcOfRegion = {}
+ccOfRegion = {}
+
+# Fourth Pass for more stats
+for y in range(NumberOfRows):
+    for x in range(NumberOfColumns):
+
+        regionNumber = image[y,x]
+        row = y
+        column = x
+
+        if (regionNumber != 0 and regionNumber != 1):
+
+            Area = AreaOfRegion[regionNumber]
+            RowCount = RowCountOfRegion[regionNumber]
+            ColumnCount = ColumnCountOfRegion[regionNumber]
+
+            rAVG = RowCount/float(Area)
+            cAVG = ColumnCount/float(Area)
+
+            rrInitCheck = rrOfRegion.get(regionNumber)
+
+            if (rrInitCheck == None):
+                rrOfRegion[regionNumber] = (row - rAVG)**2
+            else:
+                rrOfRegion[regionNumber] += (row - rAVG)**2
+
+            rcInitCheck = rcOfRegion.get(regionNumber)
+
+            if (rcInitCheck == None):
+                rcOfRegion[regionNumber] = (row - rAVG)*(column - cAVG)
+            else:
+                rcOfRegion[regionNumber] += (row - rAVG)*(column - cAVG)
+
+            ccInitCheck = ccOfRegion.get(regionNumber)
+
+            if (ccInitCheck == None):
+                ccOfRegion[regionNumber] = (column - cAVG)**2
+            else:
+                ccOfRegion[regionNumber] += (column - cAVG)**2
+
 
 print("Number Of Regions:", len(SetOfRegions))
 
 index = 1
-for y in SetOfRegions:
-    Area = AreaOfRegion[y]
-    RowCount = RowCountOfRegion[y]
-    ColumnCount = ColumnCountOfRegion[y]
+for region in SetOfRegions:
+    Area = AreaOfRegion[region]
+    RowCount = RowCountOfRegion[region]
+    ColumnCount = ColumnCountOfRegion[region]
+    Mrr = rrOfRegion[region]/float(Area)
+    Mrc = rcOfRegion[region]/float(Area)
+    Mcc = ccOfRegion[region]/float(Area)
 
     rAVG = RowCount/float(Area)
     cAVG = ColumnCount/float(Area)
@@ -255,11 +300,17 @@ for y in SetOfRegions:
     ps2 = " Area " + str(Area)
     ps3 = " r Average " + str(rAVG)
     ps4 = " c Average " + str(cAVG)
+    ps5 = " Mrr " + str(Mrr)
+    ps6 = " Mrc " + str(Mrc)
+    ps7 = " Mcc " + str(Mcc)
 
     print(ps1)
     print(ps2)
     print(ps3)
     print(ps4)
+    print(ps5)
+    print(ps6)
+    print(ps7)
     print("")
     index += 1
 
