@@ -19,32 +19,34 @@ def CheckNeighborPixels(x,y):
             rightValue = 1000
             belowValue = 1000
             aboveValue = 1000
-            upperRight = 1000
             upperLeft  = 1000
-            idk1 = 1000
-            idk2 = 1000
+            upperRight = 1000
+            bottomLeft = 1000
+            bottomRight = 1000
 
             if ((x-1) > -1):
                 leftValue = RegionValue(image[x-1,y])
             if((x+1) < NumberOfRows):
                 rightValue = RegionValue(image[x+1,y])
-            if ((y-1) > -1):
-                belowValue = RegionValue(image[x,y-1])
             if ((y+1) < NumberOfColumns):
-                aboveValue = RegionValue(image[x,y+1])
+                belowValue = RegionValue(image[x,y+1])
+            if ((y-1) > -1):
+                aboveValue = RegionValue(image[x,y-1])
+
 
             if ((x-1) > -1) and ((y-1) > -1):
                 upperLeft = RegionValue(image[x-1,y-1])
             if ((x+1) < NumberOfRows) and ((y-1) > -1):
                 upperRight = RegionValue(image[x+1,y-1])
-            if ((x+1) < NumberOfRows) and ((y+1) < NumberOfColumns):
-                idk1 = RegionValue(image[x+1,y+1])
             if ((x-1)> -1) and ((y+1) < NumberOfColumns):
-                idk1 = RegionValue(image[x-1,y+1])
+                bottomLeft = RegionValue(image[x-1,y+1])
+            if ((x+1) < NumberOfRows) and ((y+1) < NumberOfColumns):
+                bottomRight = RegionValue(image[x+1,y+1])
 
-            LowestNeighbor = min(leftValue,rightValue,belowValue,aboveValue,upperLeft,upperRight,idk1,idk2)
+            LowestNeighbor = min(leftValue,rightValue,belowValue,aboveValue,upperLeft,upperRight,bottomLeft,bottomRight)
 
-            NeighborList = [leftValue, rightValue, belowValue, aboveValue, upperRight, upperLeft, idk1, idk2]
+            NeighborList = [leftValue,rightValue,belowValue,aboveValue,upperLeft,upperRight,bottomLeft,bottomRight]
+
             if (LowestNeighbor < CurrentRegion):
                 image[x,y] = LowestNeighbor
                 for value in NeighborList:
@@ -61,37 +63,37 @@ def NeighborPixelIsEqualToValue(x,y,array,value):
             rightValue = 1000
             belowValue = 1000
             aboveValue = 1000
-            upperRight = 1000
             upperLeft  = 1000
-            idk1 = 1000
-            idk2 = 1000
+            upperRight = 1000
+            bottomLeft = 1000
+            bottomRight = 1000
 
             if ((x-1) > -1):
-                leftValue = array[x-1,y]
+                leftValue = RegionValue(image[x-1,y])
             if((x+1) < NumberOfRows):
-                rightValue = array[x+1,y]
-            if ((y-1) > -1):
-                belowValue = array[x,y-1]
+                rightValue = RegionValue(image[x+1,y])
             if ((y+1) < NumberOfColumns):
-                aboveValue = array[x,y+1]
+                belowValue = RegionValue(image[x,y+1])
+            if ((y-1) > -1):
+                aboveValue = RegionValue(image[x,y-1])
+
 
             if ((x-1) > -1) and ((y-1) > -1):
-                upperLeft = array[x-1,y-1]
+                upperLeft = RegionValue(image[x-1,y-1])
             if ((x+1) < NumberOfRows) and ((y-1) > -1):
-                upperRight = array[x+1,y-1]
-            if ((x+1) < NumberOfRows) and ((y+1) < NumberOfColumns):
-                idk1 = array[x+1,y+1]
+                upperRight = RegionValue(image[x+1,y-1])
             if ((x-1)> -1) and ((y+1) < NumberOfColumns):
-                idk1 = array[x-1,y+1]
+                bottomLeft = RegionValue(image[x-1,y+1])
+            if ((x+1) < NumberOfRows) and ((y+1) < NumberOfColumns):
+                bottomRight = RegionValue(image[x+1,y+1])
 
-            NeighborList = [leftValue, rightValue, belowValue, aboveValue, upperRight, upperLeft, idk1, idk2]
+            NeighborList = [leftValue,rightValue,belowValue,aboveValue,upperLeft,upperRight,bottomLeft,bottomRight]
 
             for val in NeighborList:
                 if val == value:
                     return True
 
             return False
-
 
 
 #START of PROGRAM
