@@ -1,4 +1,4 @@
-__author__ = 'jimmy'
+__author__ = 'jimmx'
 
 fileName = 'hw2-3A.jpg'
 
@@ -7,13 +7,13 @@ from skimage.filters import threshold_otsu
 from skimage.color import rgb2gray
 import matplotlib.pyplot as plt
 
-def RegionValue(x):
-    if (x != 0) and (x != 1):
-        return int(x)
+def RegionValue(y):
+    if (y != 0) and (y != 1):
+        return int(y)
     else:
         return int(1000)
 
-def CheckNeighborPixels(x,y):
+def CheckNeighborPixels(y,x,array):
 
             leftValue  = 1000
             rightValue = 1000
@@ -25,30 +25,30 @@ def CheckNeighborPixels(x,y):
             bottomRight = 1000
 
             if ((x-1) > -1):
-                leftValue = RegionValue(image[x-1,y])
-            if((x+1) < NumberOfRows):
-                rightValue = RegionValue(image[x+1,y])
-            if ((y+1) < NumberOfColumns):
-                belowValue = RegionValue(image[x,y+1])
+                leftValue = RegionValue(array[y,x-1])
+            if ((x+1) < NumberOfColumns):
+                rightValue = RegionValue(array[y,x+1])
+            if((y+1) < NumberOfRows):
+                belowValue = RegionValue(array[y+1,x])
             if ((y-1) > -1):
-                aboveValue = RegionValue(image[x,y-1])
+                aboveValue = RegionValue(array[y-1,x])
 
+            if ((y-1) > -1) and ((x-1) > -1):
+                upperLeft = RegionValue(array[y-1,x-1])
+            if ((y-1)> -1) and ((x+1) < NumberOfColumns):
+                upperRight = RegionValue(array[y-1,x+1])
+            if ((y+1) < NumberOfRows) and ((x-1) > -1):
+                bottomLeft = RegionValue(array[y+1,x-1])
+            if ((y+1) < NumberOfRows) and ((x+1) < NumberOfColumns):
+                bottomRight = RegionValue(array[y+1,x+1])
 
-            if ((x-1) > -1) and ((y-1) > -1):
-                upperLeft = RegionValue(image[x-1,y-1])
-            if ((x+1) < NumberOfRows) and ((y-1) > -1):
-                upperRight = RegionValue(image[x+1,y-1])
-            if ((x-1)> -1) and ((y+1) < NumberOfColumns):
-                bottomLeft = RegionValue(image[x-1,y+1])
-            if ((x+1) < NumberOfRows) and ((y+1) < NumberOfColumns):
-                bottomRight = RegionValue(image[x+1,y+1])
 
             LowestNeighbor = min(leftValue,rightValue,belowValue,aboveValue,upperLeft,upperRight,bottomLeft,bottomRight)
 
             NeighborList = [leftValue,rightValue,belowValue,aboveValue,upperLeft,upperRight,bottomLeft,bottomRight]
 
             if (LowestNeighbor < CurrentRegion):
-                image[x,y] = LowestNeighbor
+                array[y,x] = LowestNeighbor
                 for value in NeighborList:
                     if (value != LowestNeighbor) and (value != 1000):
                         temp = testDict.get(value)
@@ -57,7 +57,7 @@ def CheckNeighborPixels(x,y):
 
             return LowestNeighbor
 
-def NeighborPixelIsEqualToValue(x,y,array,value):
+def NeighborPixelIsEyualToValue(y,x,array,value):
 
             leftValue  = 1000
             rightValue = 1000
@@ -69,23 +69,22 @@ def NeighborPixelIsEqualToValue(x,y,array,value):
             bottomRight = 1000
 
             if ((x-1) > -1):
-                leftValue = RegionValue(image[x-1,y])
-            if((x+1) < NumberOfRows):
-                rightValue = RegionValue(image[x+1,y])
-            if ((y+1) < NumberOfColumns):
-                belowValue = RegionValue(image[x,y+1])
+                leftValue = array[y,x-1]
+            if ((x+1) < NumberOfColumns):
+                rightValue = array[y,x+1]
+            if((y+1) < NumberOfRows):
+                belowValue = array[y+1,x]
             if ((y-1) > -1):
-                aboveValue = RegionValue(image[x,y-1])
+                aboveValue = array[y-1,x]
 
-
-            if ((x-1) > -1) and ((y-1) > -1):
-                upperLeft = RegionValue(image[x-1,y-1])
-            if ((x+1) < NumberOfRows) and ((y-1) > -1):
-                upperRight = RegionValue(image[x+1,y-1])
-            if ((x-1)> -1) and ((y+1) < NumberOfColumns):
-                bottomLeft = RegionValue(image[x-1,y+1])
-            if ((x+1) < NumberOfRows) and ((y+1) < NumberOfColumns):
-                bottomRight = RegionValue(image[x+1,y+1])
+            if ((y-1) > -1) and ((x-1) > -1):
+                upperLeft = array[y-1,x-1]
+            if ((y-1)> -1) and ((x+1) < NumberOfColumns):
+                upperRight = array[y-1,x+1]
+            if ((y+1) < NumberOfRows) and ((x-1) > -1):
+                bottomLeft = array[y+1,x-1]
+            if ((y+1) < NumberOfRows) and ((x+1) < NumberOfColumns):
+                bottomRight = array[y+1,x+1]
 
             NeighborList = [leftValue,rightValue,belowValue,aboveValue,upperLeft,upperRight,bottomLeft,bottomRight]
 
@@ -109,57 +108,57 @@ numberOfBlackPixels = 0
 numberOfWhitePixels = 0
 
 # simpe thresholding
-for x in range(NumberOfRows):
-    for y in range(NumberOfColumns):
-        if (image[x,y] > ThresholdValue):
+for y in range(NumberOfRows):
+    for x in range(NumberOfColumns):
+        if (image[y,x] > ThresholdValue):
             #black
-            image[x,y] = 0
+            image[y,x] = 0
             numberOfBlackPixels += 1
         else:
             #white
-            image[x,y] = 1
+            image[y,x] = 1
             numberOfWhitePixels += 1
 
-#Assumption - Background has more pixels than foreground
+#Assumption - Background has more Pixels than foreground
 
-# foreground pixels are black
+# foreground Pixels are black
 ForegroundPixelValue = 0
 if ( numberOfBlackPixels > numberOfWhitePixels):
-    # foreground pixels are white
+    # foreground Pixels are white
     ForegroundPixelValue = 1
 
 BackgroundPixelValue = 1 - ForegroundPixelValue
 
 image2 = image.copy()
 # Do
-for x in range(NumberOfRows):
-    for y in range(NumberOfColumns):
-        if (image[x,y] == BackgroundPixelValue):
+for y in range(NumberOfRows):
+    for x in range(NumberOfColumns):
+        if (image[y,x] == BackgroundPixelValue):
 
-            shouldDilate = NeighborPixelIsEqualToValue(x,y,image, ForegroundPixelValue)
+            shouldDilate = NeighborPixelIsEyualToValue(y,x,image, ForegroundPixelValue)
 
             if (shouldDilate):
-                image2[x,y] = ForegroundPixelValue
+                image2[y,x] = ForegroundPixelValue
 
 
-# io.imshow(image2)
-# io.show()
+io.imshow(image2)
+io.show()
 
 
 image3 = image2.copy()
 
 # Do Erosion
-for x in range(NumberOfRows):
-    for y in range(NumberOfColumns):
-        if (image2[x,y] == ForegroundPixelValue):
+for y in range(NumberOfRows):
+    for x in range(NumberOfColumns):
+        if (image2[y,x] == ForegroundPixelValue):
 
-            shouldDilate = NeighborPixelIsEqualToValue(x,y, image2, BackgroundPixelValue)
+            shouldDilate = NeighborPixelIsEyualToValue(y,x, image2, BackgroundPixelValue)
 
             if (shouldDilate):
-                image3[x,y] = BackgroundPixelValue
+                image3[y,x] = BackgroundPixelValue
 
-# io.imshow(image3)
-# io.show()
+io.imshow(image3)
+io.show()
 
 #initialize region tag / interval
 RegionInterval = 1
@@ -169,14 +168,14 @@ newSection = False
 testDict = {}
 
 #first pass
-for x in range(NumberOfRows):
-    for y in range(NumberOfColumns):
-        if (image[x,y] == ForegroundPixelValue):
+for y in range(NumberOfRows):
+    for x in range(NumberOfColumns):
+        if (image[y,x] == ForegroundPixelValue):
 
-            LowestNeighbor = CheckNeighborPixels(x,y)
+            LowestNeighbor = CheckNeighborPixels(y,x,image)
 
             if (LowestNeighbor >= CurrentRegion):
-                image[x,y] = CurrentRegion
+                image[y,x] = CurrentRegion
                 newSection = True
 
         elif newSection:
@@ -186,9 +185,9 @@ for x in range(NumberOfRows):
 lowestValueForRegion = {}
 
 # Second Pass over Image
-for x in range(NumberOfRows):
-    for y in range(NumberOfColumns):
-        regionNumber = image[x,y]
+for y in range(NumberOfRows):
+    for x in range(NumberOfColumns):
+        regionNumber = image[y,x]
         value = testDict.get(regionNumber)
 
         temp = value
@@ -198,7 +197,7 @@ for x in range(NumberOfRows):
                 value = temp
 
         if (value != None):
-            image[x,y] = value
+            image[y,x] = value
 
 
 SetOfRegions = set()
@@ -208,10 +207,10 @@ RowCountOfRegion = {}
 ColumnCountOfRegion = {}
 
 # Third Pass over Image to Count Number of Regions
-for x in range(NumberOfRows):
-    for y in range(NumberOfColumns):
+for y in range(NumberOfRows):
+    for x in range(NumberOfColumns):
 
-        regionNumber = image[x,y]
+        regionNumber = image[y,x]
 
         if (regionNumber != 0 and regionNumber != 1):
 
@@ -226,28 +225,28 @@ for x in range(NumberOfRows):
                 AreaOfRegion[regionNumber] += 1
 
             if (RowInitCheck == None):
-                RowCountOfRegion[regionNumber] = x
+                RowCountOfRegion[regionNumber] = y
             else:
-                RowCountOfRegion[regionNumber] += x
+                RowCountOfRegion[regionNumber] += y
 
             if (ColumnInitCheck == None):
-                ColumnCountOfRegion[regionNumber] = y
+                ColumnCountOfRegion[regionNumber] = x
             else:
-                ColumnCountOfRegion[regionNumber] += y
+                ColumnCountOfRegion[regionNumber] += x
 
 
 print("Number Of Regions:", len(SetOfRegions))
 
-index = 1
-for x in SetOfRegions:
-    Area = AreaOfRegion[x]
-    RowCount = RowCountOfRegion[x]
-    ColumnCount = ColumnCountOfRegion[x]
+indey = 1
+for y in SetOfRegions:
+    Area = AreaOfRegion[y]
+    RowCount = RowCountOfRegion[y]
+    ColumnCount = ColumnCountOfRegion[y]
 
     rAVG = RowCount/float(Area)
     cAVG = ColumnCount/float(Area)
 
-    ps1 = "Region " + str(index) + " Info : "
+    ps1 = "Region " + str(indey) + " Info : "
     ps2 = " Area " + str(Area)
     ps3 = " r Average " + str(rAVG)
     ps4 = " c Average " + str(cAVG)
@@ -257,7 +256,7 @@ for x in SetOfRegions:
     print(ps3)
     print(ps4)
     print("")
-    index += 1
+    indey += 1
 
 
 io.imshow(image, cmap=plt.cm.cubehelix, interpolation='none', vmin = 0, vmax = 8, origin='upper')
