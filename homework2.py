@@ -1,6 +1,6 @@
 __author__ = 'jimmx'
 
-fileName = 'hw2-3A.jpg'
+fileName = 'hw2-2A.jpg'
 
 from skimage import data, io
 from skimage.filters import threshold_otsu
@@ -13,7 +13,7 @@ def RegionValue(y):
     else:
         return int(1000)
 
-def CheckNeighborPixels(y,x,array):
+def CheckNeighborPixels(y,x,array, storeValues):
 
             leftValue  = 1000
             rightValue = 1000
@@ -24,13 +24,13 @@ def CheckNeighborPixels(y,x,array):
             bottomLeft = 1000
             bottomRight = 1000
 
-            if ((x-1) > -1):
+            if (x-1) > -1:
                 leftValue = RegionValue(array[y,x-1])
-            if ((x+1) < NumberOfColumns):
+            if (x+1) < NumberOfColumns:
                 rightValue = RegionValue(array[y,x+1])
-            if((y+1) < NumberOfRows):
+            if (y+1) < NumberOfRows:
                 belowValue = RegionValue(array[y+1,x])
-            if ((y-1) > -1):
+            if (y-1) > -1:
                 aboveValue = RegionValue(array[y-1,x])
 
             if ((y-1) > -1) and ((x-1) > -1):
@@ -47,7 +47,7 @@ def CheckNeighborPixels(y,x,array):
 
             NeighborList = [leftValue,rightValue,belowValue,aboveValue,upperLeft,upperRight,bottomLeft,bottomRight]
 
-            if (LowestNeighbor < CurrentRegion):
+            if (LowestNeighbor < CurrentRegion) and storeValues == True:
                 array[y,x] = LowestNeighbor
                 for value in NeighborList:
                     if (value != LowestNeighbor) and (value != 1000):
@@ -56,6 +56,106 @@ def CheckNeighborPixels(y,x,array):
                             testDict[value] = LowestNeighbor
 
             return LowestNeighbor
+
+def CheckPerimeter(y,x,array):
+
+    PerimeterCount = 0
+    finalY = y
+    finalX = x
+    LoopCount = 0
+
+    tempX = 0
+    tempY = 0
+    dx = 0
+    dy = 0
+
+    while True:
+
+        dx = x - tempX
+        dy = y - tempY
+
+        tempX = x
+        tempY = y
+
+        temp = array[y,x]
+        array[y,x] = 100
+
+        io.imshow(array, cmap=plt.cm.cubehelix, interpolation='none', vmin = 0, vmax = 100, origin='upper')
+        io.show()
+        array[y,x] = temp
+        leftValue  = 1000
+        rightValue = 1000
+        belowValue = 1000
+        aboveValue = 1000
+
+        upperLeft  = 1000
+        upperRight = 1000
+        bottomLeft = 1000
+        bottomRight = 1000
+
+        if finalY == y and finalX == x:
+            LoopCount += 1
+
+        if LoopCount >= 2:
+            break
+
+        if (x-1) > -1 and dx <= 0:
+            leftValue = RegionValue(array[y,x-1])
+            if leftValue == 50:
+                PerimeterCount += 1
+                x = x-1
+                continue
+        if (x+1) < NumberOfColumns and dx >= 0:
+            rightValue = RegionValue(array[y,x+1])
+            if rightValue == 50:
+                PerimeterCount += 1
+                x = x+1
+                continue
+        if (y+1) < NumberOfRows and dy >= 0:
+            belowValue = RegionValue(array[y+1,x])
+            if belowValue == 50:
+                PerimeterCount += 1
+                y = y+1
+                continue
+
+        if (y-1) > -1 and dy <= 0:
+            aboveValue = RegionValue(array[y-1,x])
+            if aboveValue == 50:
+                PerimeterCount += 1
+                y = y-1
+                continue
+
+
+        if ((y-1) > -1) and ((x-1) > -1) and dx < 0 or dy < 0:
+            upperLeft = RegionValue(array[y-1,x-1])
+            if upperLeft == 50:
+                PerimeterCount += 2**0.5
+                x = x-1
+                y = y-1
+                continue
+        if ((y-1)> -1) and ((x+1) < NumberOfColumns)  and dx > 0 or dy < 0:
+            upperRight = RegionValue(array[y-1,x+1])
+            if upperRight == 50:
+                PerimeterCount += 2**0.5
+                x = x+1
+                y = y-1
+                continue
+        if ((y+1) < NumberOfRows) and ((x-1) > -1) and dx < 0 or dy > 0:
+            bottomLeft = RegionValue(array[y+1,x-1])
+            if bottomLeft == 50:
+                PerimeterCount += 2**0.5
+                x = x-1
+                y = y+1
+                continue
+        if ((y+1) < NumberOfRows) and ((x+1) < NumberOfColumns) and dx > 0 or dy > 0:
+            bottomRight = RegionValue(array[y+1,x+1])
+            if bottomRight == 50:
+                PerimeterCount += 2**0.5
+                x = x+1
+                y = y+1
+                continue
+
+    return PerimeterCount
 
 def NeighborPixelIsEqualToValue(y,x,array,value):
 
@@ -68,13 +168,13 @@ def NeighborPixelIsEqualToValue(y,x,array,value):
             bottomLeft = 1000
             bottomRight = 1000
 
-            if ((x-1) > -1):
+            if (x-1) > -1:
                 leftValue = array[y,x-1]
-            if ((x+1) < NumberOfColumns):
+            if (x+1) < NumberOfColumns:
                 rightValue = array[y,x+1]
-            if((y+1) < NumberOfRows):
+            if (y+1) < NumberOfRows:
                 belowValue = array[y+1,x]
-            if ((y-1) > -1):
+            if (y-1) > -1:
                 aboveValue = array[y-1,x]
 
             if ((y-1) > -1) and ((x-1) > -1):
@@ -93,7 +193,7 @@ def NeighborPixelIsEqualToValue(y,x,array,value):
                 if val == value:
                     count += 1
 
-            if ( count > 7 ):
+            if count > 7:
                 return True
             else:
                 return False
@@ -105,13 +205,13 @@ def Check4NeighborPixels(y,x,array):
             belowValue = 1000
             aboveValue = 1000
 
-            if ((x-1) > -1):
+            if (x-1) > -1:
                 leftValue = array[y,x-1]
-            if ((x+1) < NumberOfColumns):
+            if (x+1) < NumberOfColumns:
                 rightValue = array[y,x+1]
-            if((y+1) < NumberOfRows):
+            if (y+1) < NumberOfRows:
                 belowValue = array[y+1,x]
-            if ((y-1) > -1):
+            if (y-1) > -1:
                 aboveValue = array[y-1,x]
 
             LowestValue = min(leftValue,rightValue,belowValue,aboveValue)
@@ -134,7 +234,7 @@ numberOfWhitePixels = 0
 # simpe thresholding
 for y in range(NumberOfRows):
     for x in range(NumberOfColumns):
-        if (image[y,x] > ThresholdValue):
+        if image[y,x] > ThresholdValue:
             #black
             image[y,x] = 0
             numberOfBlackPixels += 1
@@ -147,7 +247,7 @@ for y in range(NumberOfRows):
 
 # foreground Pixels are black
 ForegroundPixelValue = 0
-if ( numberOfBlackPixels > numberOfWhitePixels):
+if numberOfBlackPixels > numberOfWhitePixels:
     # foreground Pixels are white
     ForegroundPixelValue = 1
 
@@ -158,11 +258,11 @@ image2 = image.copy()
 #  Erosion - foreground checks Neighboring background pixels, and turns into background if necessary
 for y in range(NumberOfRows):
     for x in range(NumberOfColumns):
-        if (image[y,x] == ForegroundPixelValue):
+        if image[y,x] == ForegroundPixelValue:
 
             shouldDilate = NeighborPixelIsEqualToValue(y,x, image, BackgroundPixelValue)
 
-            if (shouldDilate):
+            if shouldDilate:
                 image2[y,x] = BackgroundPixelValue
 
 # io.imshow(image2)
@@ -173,11 +273,11 @@ image3 = image2.copy()
 # Dilation - background checks Neighboring foreground pixels, and turns into foreground if necessary
 for y in range(NumberOfRows):
     for x in range(NumberOfColumns):
-        if (image2[y,x] == BackgroundPixelValue):
+        if image2[y,x] == BackgroundPixelValue:
 
             shouldDilate = NeighborPixelIsEqualToValue(y,x,image2, ForegroundPixelValue)
 
-            if (shouldDilate):
+            if shouldDilate:
                 image3[y,x] = ForegroundPixelValue
 
 
@@ -196,11 +296,11 @@ testDict = {}
 #first pass
 for y in range(NumberOfRows):
     for x in range(NumberOfColumns):
-        if (image[y,x] == ForegroundPixelValue):
+        if image[y,x] == ForegroundPixelValue:
 
-            LowestNeighbor = CheckNeighborPixels(y,x,image)
+            LowestNeighbor = CheckNeighborPixels(y,x,image, True)
 
-            if (LowestNeighbor >= CurrentRegion):
+            if LowestNeighbor >= CurrentRegion:
                 image[y,x] = CurrentRegion
                 newSection = True
 
@@ -217,12 +317,12 @@ for y in range(NumberOfRows):
         value = testDict.get(regionNumber)
 
         temp = value
-        while (temp != None):
+        while temp != None:
             temp = testDict.get(temp)
-            if (temp != None):
+            if temp != None:
                 value = temp
 
-        if (value != None):
+        if value != None:
             image[y,x] = value
 
 
@@ -254,17 +354,17 @@ for y in range(NumberOfRows):
             RowInitCheck = RowCountOfRegion.get(regionNumber)
             ColumnInitCheck = ColumnCountOfRegion.get(regionNumber)
 
-            if (AreaInitCheck == None):
+            if AreaInitCheck == None:
                 AreaOfRegion[regionNumber] = 1
             else:
                 AreaOfRegion[regionNumber] += 1
 
-            if (RowInitCheck == None):
+            if RowInitCheck == None:
                 RowCountOfRegion[regionNumber] = y
             else:
                 RowCountOfRegion[regionNumber] += y
 
-            if (ColumnInitCheck == None):
+            if ColumnInitCheck == None:
                 ColumnCountOfRegion[regionNumber] = x
             else:
                 ColumnCountOfRegion[regionNumber] += x
@@ -281,7 +381,7 @@ for y in range(NumberOfRows):
         row = y
         column = x
 
-        if (regionNumber != 0 and regionNumber != 1):
+        if regionNumber != 0 and regionNumber != 1:
 
             Area = AreaOfRegion[regionNumber]
             RowCount = RowCountOfRegion[regionNumber]
@@ -292,24 +392,49 @@ for y in range(NumberOfRows):
 
             rrInitCheck = rrOfRegion.get(regionNumber)
 
-            if (rrInitCheck == None):
+            if rrInitCheck == None:
                 rrOfRegion[regionNumber] = (row - rAVG)**2
             else:
                 rrOfRegion[regionNumber] += (row - rAVG)**2
 
             rcInitCheck = rcOfRegion.get(regionNumber)
 
-            if (rcInitCheck == None):
+            if rcInitCheck == None:
                 rcOfRegion[regionNumber] = (row - rAVG)*(column - cAVG)
             else:
                 rcOfRegion[regionNumber] += (row - rAVG)*(column - cAVG)
 
             ccInitCheck = ccOfRegion.get(regionNumber)
 
-            if (ccInitCheck == None):
+            if ccInitCheck == None:
                 ccOfRegion[regionNumber] = (column - cAVG)**2
             else:
                 ccOfRegion[regionNumber] += (column - cAVG)**2
+
+
+# Fifth Pass - Walk Along Perimeter
+
+PerimeterOfRegion = {}
+
+for y in range(NumberOfRows):
+    for x in range(NumberOfColumns):
+
+        regionPerimeterNumber = PerimeterImage[y,x]
+
+        if regionPerimeterNumber == 50:
+
+            InnerRegionValue = CheckNeighborPixels(y,x,PerimeterImage, False)
+
+            pInitCheck = PerimeterOfRegion.get(InnerRegionValue)
+
+            if pInitCheck == None and InnerRegionValue != 50 and InnerRegionValue != 0:
+
+                Circumference = CheckPerimeter(y,x,PerimeterImage)
+
+                PerimeterOfRegion[InnerRegionValue] = Circumference
+
+                ps = "Circumference for region " + str(InnerRegionValue) + " " + str(Circumference)
+                print(ps)
 
 
 print("Number Of Regions:", len(SetOfRegions))
