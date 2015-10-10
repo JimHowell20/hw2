@@ -16,6 +16,9 @@ def RegionValue(y):
 def RoundFloat(x):
     return  int((x * 100) + 0.5) / 100.0
 
+def DistanceBetweenTwoPoints(x1,y1,x2,y2):
+    return ((x2-x1)**2+(y2-y1)**2)**0.5
+
 def CheckNeighborPixels(y,x,array, storeValues):
 
             leftValue  = 1000
@@ -401,12 +404,15 @@ for y in range(NumberOfRows):
 rrOfRegion = {}
 rcOfRegion = {}
 ccOfRegion = {}
+mrdOfRegion = {}
+PerimeterPixelCountOfRegion = {}
 
 # Fourth Pass for more stats
 for y in range(NumberOfRows):
     for x in range(NumberOfColumns):
 
         regionNumber = image[y,x]
+        regionPixelNumber = PerimeterImage[y,x]
         row = y
         column = x
 
@@ -418,6 +424,24 @@ for y in range(NumberOfRows):
 
             rAVG = RowCount/float(Area)
             cAVG = ColumnCount/float(Area)
+
+            if regionPixelNumber == PerimeterRegionID:
+
+                distance = DistanceBetweenTwoPoints(y,x,rAVG,cAVG)
+                mrdInitCheck = mrdOfRegion.get(regionNumber)
+
+                if mrdInitCheck == None:
+                    mrdOfRegion[regionNumber] = distance
+                else:
+                    mrdOfRegion[regionNumber] += distance
+
+                PPInitCheck = PerimeterPixelCountOfRegion.get(regionNumber)
+
+                if PPInitCheck == None:
+                    PerimeterPixelCountOfRegion[regionNumber] = 1
+                else:
+                    PerimeterPixelCountOfRegion[regionNumber] += 1
+
 
             rrInitCheck = rrOfRegion.get(regionNumber)
 
@@ -469,15 +493,19 @@ for y in range(NumberOfRows):
 
 print("Number Of Regions:", len(SetOfRegions))
 
+
 index = 1
 for region in SetOfRegions:
     Area = AreaOfRegion[region]
     RowCount = RowCountOfRegion[region]
     ColumnCount = ColumnCountOfRegion[region]
     PerimeterCount = PerimeterOfRegion[region]
+    PerimeterPixelCount = PerimeterPixelCountOfRegion[region]
+
     Mrr = rrOfRegion[region]/float(Area)
     Mrc = rcOfRegion[region]/float(Area)
     Mcc = ccOfRegion[region]/float(Area)
+    MRD = mrdOfRegion[region]/float(PerimeterPixelCount)
 
     rAVG = RowCount/float(Area)
     cAVG = ColumnCount/float(Area)
@@ -490,6 +518,7 @@ for region in SetOfRegions:
     ps6 = " Mrc " + str(RoundFloat(Mrc))
     ps7 = " Mcc " + str(RoundFloat(Mcc))
     ps8 = " Perimeter " + str(RoundFloat(PerimeterCount))
+    ps9 = " MRD " + str(RoundFloat(MRD))
 
     print(ps1)
     print(ps2)
@@ -499,6 +528,7 @@ for region in SetOfRegions:
     print(ps6)
     print(ps7)
     print(ps8)
+    print(ps9)
     print("")
     index += 1
 
