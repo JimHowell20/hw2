@@ -88,12 +88,15 @@ def NeighborPixelIsEyualToValue(y,x,array,value):
 
             NeighborList = [leftValue,rightValue,belowValue,aboveValue,upperLeft,upperRight,bottomLeft,bottomRight]
 
+            count = 0
             for val in NeighborList:
                 if val == value:
-                    return True
+                    count += 1
 
-            return False
-
+            if ( count > 7 ):
+                return True
+            else:
+                return False
 
 #START of PROGRAM
 image = io.imread(fileName)
@@ -131,7 +134,7 @@ BackgroundPixelValue = 1 - ForegroundPixelValue
 
 image2 = image.copy()
 
-# Do Erosion
+#  Erosion - foreground checks Neighboring background pixels, and turns into background if necessary
 for y in range(NumberOfRows):
     for x in range(NumberOfColumns):
         if (image[y,x] == ForegroundPixelValue):
@@ -146,7 +149,7 @@ io.show()
 
 
 image3 = image2.copy()
-# Do
+# Dilation - background checks Neighboring foreground pixels, and turns into foreground if necessary
 for y in range(NumberOfRows):
     for x in range(NumberOfColumns):
         if (image2[y,x] == BackgroundPixelValue):
