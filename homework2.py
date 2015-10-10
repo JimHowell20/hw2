@@ -96,7 +96,7 @@ def CheckPerimeter(y,x,array):
         if finalY == y and finalX == x:
             LoopCount += 1
 
-        if LoopCount >= 2:
+        if LoopCount >= 2 or (dx == 0 and dy == 0):
             break
 
         if (x-1) > -1 and dx <= 0:
@@ -154,7 +154,8 @@ def CheckPerimeter(y,x,array):
                 x = x+1
                 y = y+1
                 continue
-
+        dx = 0
+        dy = 0
     return PerimeterCount
 
 def NeighborPixelIsEqualToValue(y,x,array,value):
@@ -424,11 +425,12 @@ for y in range(NumberOfRows):
 
         if regionPerimeterNumber == PerimeterRegionID:
 
-            InnerRegionValue = CheckNeighborPixels(y,x,PerimeterImage, False)
+            #Check original image to see what region it is
+            InnerRegionValue = CheckNeighborPixels(y,x, image, False)
 
             pInitCheck = PerimeterOfRegion.get(InnerRegionValue)
 
-            if pInitCheck == None and InnerRegionValue != PerimeterRegionID and InnerRegionValue != 0:
+            if pInitCheck == None and InnerRegionValue != PerimeterRegionID:
 
                 Circumference = CheckPerimeter(y,x,PerimeterImage)
 
