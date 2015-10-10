@@ -1,6 +1,6 @@
 __author__ = 'jimmx'
 
-fileName = 'hw2-2A.jpg'
+fileName = 'hw2-3A.jpg'
 
 from skimage import data, io
 from skimage.filters import threshold_otsu
@@ -57,15 +57,17 @@ def CheckNeighborPixels(y,x,array, storeValues):
 
             return LowestNeighbor
 
-def CheckPerimeter(y,x,array):
+def CheckPerimeter(y,x,array, regionValue):
 
     PerimeterCount = 0
-    finalY = y
-    finalX = x
+
     LoopCount = 0
 
-    tempX = 0
-    tempY = 0
+    tempX = x
+    tempY = y
+    finalY = 2000
+    finalX = 2000
+    LastIncrement = 0
     dx = 0
     dy = 0
 
@@ -77,12 +79,32 @@ def CheckPerimeter(y,x,array):
         tempX = x
         tempY = y
 
-        temp = array[y,x]
-        array[y,x] = 100
+        if LoopCount != 0:
+            #Circle
+            if (tempX == finalX) and (tempY == finalY):
+                PerimeterCount -= LastIncrement #Counted Twice
+                break
+            #Line
+            if (dx == 0) and (dy == 0):
+                break
 
-        io.imshow(array, cmap=plt.cm.cubehelix, interpolation='none', vmin = 0, vmax = 100, origin='upper')
-        io.show()
-        array[y,x] = temp
+        if (LoopCount == 1):
+            finalY = y
+            finalX = x
+
+        LoopCount += 1
+
+        # if(regionValue == 4):
+        #     temp = array[y,x]
+        #     array[y,x] = 100
+        #
+        #     print("Perimeter Count", PerimeterCount)
+        #
+        #     io.imshow(array, cmap=plt.cm.cubehelix, interpolation='none', vmin = 0, vmax = 100, origin='upper')
+        #     io.show()
+        #     array[y,x] = temp
+
+
         leftValue  = 1000
         rightValue = 1000
         belowValue = 1000
@@ -93,28 +115,58 @@ def CheckPerimeter(y,x,array):
         bottomLeft = 1000
         bottomRight = 1000
 
-        if finalY == y and finalX == x:
-            LoopCount += 1
-
-        if LoopCount >= 2 or (dx == 0 and dy == 0):
-            break
+        if ((y-1) > -1) and ((x-1) > -1) and dx <= 0 or dy <= 0:
+            upperLeft = RegionValue(array[y-1,x-1])
+            if upperLeft == PerimeterRegionID:
+                PerimeterCount += 2**0.5
+                LastIncrement = 2**0.5
+                x = x-1
+                y = y-1
+                continue
+        if ((y-1)> -1) and ((x+1) < NumberOfColumns)  and dx >= 0 or dy <= 0:
+            upperRight = RegionValue(array[y-1,x+1])
+            if upperRight == PerimeterRegionID:
+                PerimeterCount += 2**0.5
+                LastIncrement = 2**0.5
+                x = x+1
+                y = y-1
+                continue
+        if ((y+1) < NumberOfRows) and ((x-1) > -1) and dx <= 0 or dy >= 0:
+            bottomLeft = RegionValue(array[y+1,x-1])
+            if bottomLeft == PerimeterRegionID:
+                PerimeterCount += 2**0.5
+                LastIncrement = 2**0.5
+                x = x-1
+                y = y+1
+                continue
+        if ((y+1) < NumberOfRows) and ((x+1) < NumberOfColumns) and dx >= 0 or dy >= 0:
+            bottomRight = RegionValue(array[y+1,x+1])
+            if bottomRight == PerimeterRegionID:
+                PerimeterCount += 2**0.5
+                LastIncrement = 2**0.5
+                x = x+1
+                y = y+1
+                continue
 
         if (x-1) > -1 and dx <= 0:
             leftValue = RegionValue(array[y,x-1])
             if leftValue == PerimeterRegionID:
                 PerimeterCount += 1
+                LastIncrement = 1
                 x = x-1
                 continue
         if (x+1) < NumberOfColumns and dx >= 0:
             rightValue = RegionValue(array[y,x+1])
             if rightValue == PerimeterRegionID:
                 PerimeterCount += 1
+                LastIncrement = 1
                 x = x+1
                 continue
         if (y+1) < NumberOfRows and dy >= 0:
             belowValue = RegionValue(array[y+1,x])
             if belowValue == PerimeterRegionID:
                 PerimeterCount += 1
+                LastIncrement = 1
                 y = y+1
                 continue
 
@@ -122,40 +174,12 @@ def CheckPerimeter(y,x,array):
             aboveValue = RegionValue(array[y-1,x])
             if aboveValue == PerimeterRegionID:
                 PerimeterCount += 1
+                LastIncrement = 1
                 y = y-1
                 continue
 
 
-        if ((y-1) > -1) and ((x-1) > -1) and dx < 0 or dy < 0:
-            upperLeft = RegionValue(array[y-1,x-1])
-            if upperLeft == PerimeterRegionID:
-                PerimeterCount += 2**0.5
-                x = x-1
-                y = y-1
-                continue
-        if ((y-1)> -1) and ((x+1) < NumberOfColumns)  and dx > 0 or dy < 0:
-            upperRight = RegionValue(array[y-1,x+1])
-            if upperRight == PerimeterRegionID:
-                PerimeterCount += 2**0.5
-                x = x+1
-                y = y-1
-                continue
-        if ((y+1) < NumberOfRows) and ((x-1) > -1) and dx < 0 or dy > 0:
-            bottomLeft = RegionValue(array[y+1,x-1])
-            if bottomLeft == PerimeterRegionID:
-                PerimeterCount += 2**0.5
-                x = x-1
-                y = y+1
-                continue
-        if ((y+1) < NumberOfRows) and ((x+1) < NumberOfColumns) and dx > 0 or dy > 0:
-            bottomRight = RegionValue(array[y+1,x+1])
-            if bottomRight == PerimeterRegionID:
-                PerimeterCount += 2**0.5
-                x = x+1
-                y = y+1
-                continue
-        dx = 0
-        dy = 0
+
     return PerimeterCount
 
 def NeighborPixelIsEqualToValue(y,x,array,value):
@@ -418,6 +442,7 @@ for y in range(NumberOfRows):
 
 PerimeterOfRegion = {}
 
+index = 0
 for y in range(NumberOfRows):
     for x in range(NumberOfColumns):
 
@@ -432,11 +457,13 @@ for y in range(NumberOfRows):
 
             if pInitCheck == None and InnerRegionValue != PerimeterRegionID:
 
-                Circumference = CheckPerimeter(y,x,PerimeterImage)
+                index += 1
+
+                Circumference = CheckPerimeter(y,x,PerimeterImage,index)
 
                 PerimeterOfRegion[InnerRegionValue] = Circumference
 
-                ps = "Circumference for region " + str(InnerRegionValue) + " " + str(Circumference)
+                ps = "Circumference for region " + str(index) + " " + str(Circumference)
                 print(ps)
 
 
