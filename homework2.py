@@ -130,35 +130,37 @@ if ( numberOfBlackPixels > numberOfWhitePixels):
 BackgroundPixelValue = 1 - ForegroundPixelValue
 
 image2 = image.copy()
-# Do
+
+# Do Erosion
 for y in range(NumberOfRows):
     for x in range(NumberOfColumns):
-        if (image[y,x] == BackgroundPixelValue):
+        if (image[y,x] == ForegroundPixelValue):
 
-            shouldDilate = NeighborPixelIsEyualToValue(y,x,image, ForegroundPixelValue)
+            shouldDilate = NeighborPixelIsEyualToValue(y,x, image, BackgroundPixelValue)
 
             if (shouldDilate):
-                image2[y,x] = ForegroundPixelValue
-
+                image2[y,x] = BackgroundPixelValue
 
 io.imshow(image2)
 io.show()
 
 
 image3 = image2.copy()
-
-# Do Erosion
+# Do
 for y in range(NumberOfRows):
     for x in range(NumberOfColumns):
-        if (image2[y,x] == ForegroundPixelValue):
+        if (image2[y,x] == BackgroundPixelValue):
 
-            shouldDilate = NeighborPixelIsEyualToValue(y,x, image2, BackgroundPixelValue)
+            shouldDilate = NeighborPixelIsEyualToValue(y,x,image2, ForegroundPixelValue)
 
             if (shouldDilate):
-                image3[y,x] = BackgroundPixelValue
+                image3[y,x] = ForegroundPixelValue
+
 
 io.imshow(image3)
 io.show()
+
+image = image3
 
 #initialize region tag / interval
 RegionInterval = 1
