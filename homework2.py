@@ -1,4 +1,7 @@
-__author__ = 'jimmx'
+#Jim Howell
+#A37491496
+#CSE 803
+#HW #2
 
 fileName = 'hw2-2A.jpg'
 
