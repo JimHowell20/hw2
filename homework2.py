@@ -1,6 +1,6 @@
 __author__ = 'jimmx'
 
-fileName = 'hw2-3A.jpg'
+fileName = 'hw2-2A.jpg'
 
 from skimage import data, io
 from skimage.filters import threshold_otsu
@@ -460,6 +460,36 @@ for y in range(NumberOfRows):
 
                 PerimeterOfRegion[InnerRegionValue] = Circumference
 
+STDofRDRegionValue = {}
+
+# STD of radial distance
+for y in range(NumberOfRows):
+    for x in range(NumberOfColumns):
+
+        regionNumber = image[y,x]
+        regionPixelNumber = PerimeterImage[y,x]
+        row = y
+        column = x
+
+        if regionNumber != 0 and regionNumber != 1:
+
+            Area = AreaOfRegion[regionNumber]
+            RowCount = RowCountOfRegion[regionNumber]
+            ColumnCount = ColumnCountOfRegion[regionNumber]
+
+            rAVG = RowCount/float(Area)
+            cAVG = ColumnCount/float(Area)
+
+            if regionPixelNumber == PerimeterRegionID:
+
+                PerimeterPixelCount = PerimeterPixelCountOfRegion[regionNumber]
+
+                MRD = mrdOfRegion[regionNumber]/float(PerimeterPixelCount)
+
+                distance = DistanceBetweenTwoPoints(y,x,rAVG,cAVG)
+
+                UpdateDictKeyValue(STDofRDRegionValue,regionNumber,(distance-MRD)**2)
+
 
 print("Number Of Regions:", len(SetOfRegions))
 
@@ -471,11 +501,15 @@ for region in SetOfRegions:
     ColumnCount = ColumnCountOfRegion[region]
     PerimeterCount = PerimeterOfRegion[region]
     PerimeterPixelCount = PerimeterPixelCountOfRegion[region]
+    PartialSTDofRad = STDofRDRegionValue[region]
 
     Mrr = rrOfRegion[region]/float(Area)
     Mrc = rcOfRegion[region]/float(Area)
     Mcc = ccOfRegion[region]/float(Area)
     MRD = mrdOfRegion[region]/float(PerimeterPixelCount)
+    STDofRad = (PartialSTDofRad/float(PerimeterPixelCount))**0.5
+
+    Circularity = MRD/STDofRad
 
     rAVG = RowCount/float(Area)
     cAVG = ColumnCount/float(Area)
@@ -489,6 +523,8 @@ for region in SetOfRegions:
     ps7 = " Mcc " + str(RoundFloat(Mcc))
     ps8 = " Perimeter " + str(RoundFloat(PerimeterCount))
     ps9 = " MRD " + str(RoundFloat(MRD))
+    ps10 = " STD of Radial Dist " + str(RoundFloat(STDofRad))
+    ps11 = " Circularity " + str(RoundFloat(Circularity))
 
     print(ps1)
     print(ps2)
@@ -499,6 +535,8 @@ for region in SetOfRegions:
     print(ps7)
     print(ps8)
     print(ps9)
+    print(ps10)
+    print(ps11)
     print("")
     index += 1
 
