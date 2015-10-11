@@ -356,6 +356,7 @@ def ProcessImageWithName(name, number):
     CurrentRegion= 2
     newSection = False
 
+    global testDict
     testDict = {}
 
     #first pass
