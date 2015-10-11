@@ -281,7 +281,7 @@ def Check4NeighborPixels(y,x,array):
 
             return LowestValue
 
-def ProcessImageWithName(name):
+def ProcessImageWithName(name, number):
     #START of PROGRAM
     image = io.imread(name)
     image = rgb2gray(image)
@@ -519,9 +519,6 @@ def ProcessImageWithName(name):
     print("Number Of Regions:", len(SetOfRegions))
 
 
-    Image1FeatureVector = {}
-    Image2FeatureVector = {}
-
     index = 1
     for region in SetOfRegions:
         Area = AreaOfRegion[region]
@@ -545,7 +542,10 @@ def ProcessImageWithName(name):
         rAVG = RowCount/float(Area)
         cAVG = ColumnCount/float(Area)
 
-        Image1FeatureVector[regionNumber] = [Area, Mrr + Mrc + Mcc, PerimeterCount, MRD, STDofRad, Circularity, IMax, IMin]
+        if (number == 1):
+            Image1FeatureVector[region] = [Area, Mrr + Mrc + Mcc, PerimeterCount, MRD, STDofRad, Circularity, IMax, IMin]
+        else:
+            Image2FeatureVector[region] = [Area, Mrr + Mrc + Mcc, PerimeterCount, MRD, STDofRad, Circularity, IMax, IMin]
 
         ps1 = "Region " + str(index) + " Info : "
         ps2 = " Area " + str(RoundFloat(Area))
@@ -584,5 +584,25 @@ def ProcessImageWithName(name):
     # io.imshow(PerimeterImage, cmap=plt.cm.cubehelix, interpolation='none', vmin = 0, vmax = PerimeterRegionID, origin='upper')
     # io.show()
 
-fileName = 'hw2-2B.jpg'
-ProcessImageWithName(fileName)
+    return SetOfRegions
+
+Image1FeatureVector = {}
+Image2FeatureVector = {}
+
+fileName1 = 'hw2-2A.jpg'
+fileName2 = 'hw2-2B.jpg'
+
+image1Regions = ProcessImageWithName(fileName1 ,1)
+image2Regions = ProcessImageWithName(fileName2 ,0)
+
+for r1 in image1Regions:
+    for r2 in image2Regions:
+        v1 = Image1FeatureVector.get(r1)
+        v2 = Image2FeatureVector.get(r2)
+
+        if (v1 != None and v2 != None):
+
+            distance =FeatureVectorDistance(v1,v2)
+            print("distance",distance)
+
+
