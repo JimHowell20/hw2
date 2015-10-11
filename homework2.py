@@ -543,9 +543,9 @@ def ProcessImageWithName(name, number):
         cAVG = ColumnCount/float(Area)
 
         if (number == 1):
-            Image1FeatureVector[index] = [Area, PerimeterCount, MRD, STDofRad, Circularity, IMax, IMin]
+            Image1FeatureVector[region] = [Area, PerimeterCount, MRD, STDofRad, Circularity, IMax, IMin]
         else:
-            Image2FeatureVector[index] = [Area, PerimeterCount, MRD, STDofRad, Circularity, IMax, IMin]
+            Image2FeatureVector[region] = [Area, PerimeterCount, MRD, STDofRad, Circularity, IMax, IMin]
 
         ps1 = "Region " + str(index) + " Info : "
         ps2 = " Area " + str(RoundFloat(Area))
@@ -597,17 +597,16 @@ image2Regions = ProcessImageWithName(fileName2 ,0)
 
 EqualRegions = []
 
-for r1 in range(len(image1Regions)):
+for r1 in image1Regions:
 
-    r1Index = r1 + 1
     minDistance = 1000
     minR = None
-    v1 = Image1FeatureVector.get(r1Index)
+    v1 = Image1FeatureVector.get(r1)
 
-    for r2 in range(len(image2Regions)):
+    for r2 in image2Regions:
 
         r2index = r2 + 1
-        v2 = Image2FeatureVector.get(r2index)
+        v2 = Image2FeatureVector.get(r2)
 
         if (v1 != None and v2 != None):
 
@@ -615,10 +614,9 @@ for r1 in range(len(image1Regions)):
 
             if (distance < minDistance):
                 minDistance = distance
-                minR = r2index
+                minR = r2
 
-    EqualRegions.append((r1Index,minR))
-
+    EqualRegions.append((r1,minR))
 
 
 print("equal Regions",EqualRegions)
