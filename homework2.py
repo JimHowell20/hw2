@@ -3,7 +3,7 @@
 #CSE 803
 #HW #2
 
-fileName = 'hw2-2A.jpg'
+
 
 from skimage import data, io
 from skimage.filters import threshold_otsu
@@ -25,12 +25,19 @@ def UpdateDictKeyValue(dictionary,key,value):
     else:
         dictionary[key] += value
 
-
 def RoundFloat(x):
     return  round(x,1)
 
 def DistanceBetweenTwoPoints(x1,y1,x2,y2):
     return ((x2-x1)**2+(y2-y1)**2)**0.5
+
+def FeatureVectorDistance(v1, v2):
+    sum = 0
+
+    for i in range(len(v1)):
+        sum += (v1[i]-v2[i])**2
+
+    return sum**0.5
 
 def CheckNeighborPixels(y,x,array, storeValues):
 
@@ -42,6 +49,9 @@ def CheckNeighborPixels(y,x,array, storeValues):
             upperRight = 1000
             bottomLeft = 1000
             bottomRight = 1000
+
+            NumberOfRows = array.shape[0]
+            NumberOfColumns = array.shape[1]
 
             if (x-1) > -1:
                 leftValue = RegionValue(array[y,x-1])
@@ -89,6 +99,9 @@ def CheckPerimeter(y,x,array, regionValue):
     LastIncrement = 0
     dx = 0
     dy = 0
+
+    NumberOfRows = array.shape[0]
+    NumberOfColumns = array.shape[1]
 
     while True:
 
@@ -212,6 +225,9 @@ def NeighborPixelIsEqualToValue(y,x,array,value):
             bottomLeft = 1000
             bottomRight = 1000
 
+            NumberOfRows = array.shape[0]
+            NumberOfColumns = array.shape[1]
+
             if (x-1) > -1:
                 leftValue = array[y,x-1]
             if (x+1) < NumberOfColumns:
@@ -249,6 +265,9 @@ def Check4NeighborPixels(y,x,array):
             belowValue = 1000
             aboveValue = 1000
 
+            NumberOfRows = array.shape[0]
+            NumberOfColumns = array.shape[1]
+
             if (x-1) > -1:
                 leftValue = array[y,x-1]
             if (x+1) < NumberOfColumns:
@@ -262,297 +281,308 @@ def Check4NeighborPixels(y,x,array):
 
             return LowestValue
 
+def ProcessImageWithName(name):
+    #START of PROGRAM
+    image = io.imread(name)
+    image = rgb2gray(image)
 
-#START of PROGRAM
-image = io.imread(fileName)
-image = rgb2gray(image)
+    NumberOfRows = image.shape[0]
+    NumberOfColumns = image.shape[1]
 
-NumberOfRows = image.shape[0]
-NumberOfColumns = image.shape[1]
+    ThresholdValue = threshold_otsu(image)
 
-ThresholdValue = threshold_otsu(image)
+    numberOfBlackPixels = 0
+    numberOfWhitePixels = 0
 
-numberOfBlackPixels = 0
-numberOfWhitePixels = 0
-
-# simpe thresholding
-for y in range(NumberOfRows):
-    for x in range(NumberOfColumns):
-        if image[y,x] > ThresholdValue:
-            #black
-            image[y,x] = 0
-            numberOfBlackPixels += 1
-        else:
-            #white
-            image[y,x] = 1
-            numberOfWhitePixels += 1
-
-#Assumption - Background has more Pixels than foreground
-
-# foreground Pixels are black
-ForegroundPixelValue = 0
-if numberOfBlackPixels > numberOfWhitePixels:
-    # foreground Pixels are white
-    ForegroundPixelValue = 1
-
-BackgroundPixelValue = 1 - ForegroundPixelValue
-
-image2 = image.copy()
-
-#  Erosion - foreground checks Neighboring background pixels, and turns into background if necessary
-for y in range(NumberOfRows):
-    for x in range(NumberOfColumns):
-        if image[y,x] == ForegroundPixelValue:
-
-            shouldDilate = NeighborPixelIsEqualToValue(y,x, image, BackgroundPixelValue)
-
-            if shouldDilate:
-                image2[y,x] = BackgroundPixelValue
-
-# io.imshow(image2)
-# io.show()
-#
-
-image3 = image2.copy()
-# Dilation - background checks Neighboring foreground pixels, and turns into foreground if necessary
-for y in range(NumberOfRows):
-    for x in range(NumberOfColumns):
-        if image2[y,x] == BackgroundPixelValue:
-
-            shouldDilate = NeighborPixelIsEqualToValue(y,x,image2, ForegroundPixelValue)
-
-            if shouldDilate:
-                image3[y,x] = ForegroundPixelValue
-
-
-# io.imshow(image3)
-# io.show()
-
-image = image3
-
-#initialize region tag / interval
-RegionInterval = 1
-CurrentRegion = 2
-newSection = False
-
-testDict = {}
-
-#first pass
-for y in range(NumberOfRows):
-    for x in range(NumberOfColumns):
-        if image[y,x] == ForegroundPixelValue:
-
-            LowestNeighbor = CheckNeighborPixels(y,x,image, True)
-
-            if LowestNeighbor >= CurrentRegion:
-                image[y,x] = CurrentRegion
-                newSection = True
-
-        elif newSection:
-            CurrentRegion += RegionInterval
-            newSection = False
-
-lowestValueForRegion = {}
-
-# Second Pass over Image
-for y in range(NumberOfRows):
-    for x in range(NumberOfColumns):
-        regionNumber = image[y,x]
-        value = testDict.get(regionNumber)
-
-        temp = value
-        while temp != None:
-            temp = testDict.get(temp)
-            if temp != None:
-                value = temp
-
-        if value != None:
-            image[y,x] = value
-
-
-SetOfRegions = set()
-
-PerimeterRegionID = 50
-AreaOfRegion = {}
-RowCountOfRegion = {}
-ColumnCountOfRegion = {}
-
-PerimeterImage = image.copy()
-
-# Third Pass over Image to Count Number of Regions
-for y in range(NumberOfRows):
-    for x in range(NumberOfColumns):
-
-        regionNumber = image[y,x]
-
-        if regionNumber != 0 and regionNumber != 1:
-
-            lowestNeighbor = Check4NeighborPixels(y,x,image)
-
-            if lowestNeighbor == BackgroundPixelValue:
-                PerimeterImage[y,x] = PerimeterRegionID
+    # simpe thresholding
+    for y in range(NumberOfRows):
+        for x in range(NumberOfColumns):
+            if image[y,x] > ThresholdValue:
+                #black
+                image[y,x] = 0
+                numberOfBlackPixels += 1
             else:
-                PerimeterImage[y,x] = regionNumber
+                #white
+                image[y,x] = 1
+                numberOfWhitePixels += 1
 
-            SetOfRegions.add(int(regionNumber))
+    #Assumption - Background has more Pixels than foreground
 
-            UpdateDictKeyValue(AreaOfRegion,regionNumber,1)
-            UpdateDictKeyValue(RowCountOfRegion,regionNumber,y)
-            UpdateDictKeyValue(ColumnCountOfRegion,regionNumber,x)
+    # foreground Pixels are black
+    ForegroundPixelValue = 0
+    if numberOfBlackPixels > numberOfWhitePixels:
+        # foreground Pixels are white
+        ForegroundPixelValue = 1
 
+    BackgroundPixelValue = 1 - ForegroundPixelValue
 
-rrOfRegion = {}
-rcOfRegion = {}
-ccOfRegion = {}
-mrdOfRegion = {}
-PerimeterPixelCountOfRegion = {}
+    image2 = image.copy()
 
-# Fourth Pass for more stats
-for y in range(NumberOfRows):
-    for x in range(NumberOfColumns):
+    #  Erosion - foreground checks Neighboring background pixels, and turns into background if necessary
+    for y in range(NumberOfRows):
+        for x in range(NumberOfColumns):
+            if image[y,x] == ForegroundPixelValue:
 
-        regionNumber = image[y,x]
-        regionPixelNumber = PerimeterImage[y,x]
-        row = y
-        column = x
+                shouldDilate = NeighborPixelIsEqualToValue(y,x, image, BackgroundPixelValue)
 
-        if regionNumber != 0 and regionNumber != 1:
+                if shouldDilate:
+                    image2[y,x] = BackgroundPixelValue
 
-            Area = AreaOfRegion[regionNumber]
-            RowCount = RowCountOfRegion[regionNumber]
-            ColumnCount = ColumnCountOfRegion[regionNumber]
+    # io.imshow(image2)
+    # io.show()
+    #
 
-            rAVG = RowCount/float(Area)
-            cAVG = ColumnCount/float(Area)
+    image3 = image2.copy()
+    # Dilation - background checks Neighboring foreground pixels, and turns into foreground if necessary
+    for y in range(NumberOfRows):
+        for x in range(NumberOfColumns):
+            if image2[y,x] == BackgroundPixelValue:
 
-            if regionPixelNumber == PerimeterRegionID:
+                shouldDilate = NeighborPixelIsEqualToValue(y,x,image2, ForegroundPixelValue)
 
-                distance = DistanceBetweenTwoPoints(y,x,rAVG,cAVG)
-
-                UpdateDictKeyValue(mrdOfRegion,regionNumber,distance)
-                UpdateDictKeyValue(PerimeterPixelCountOfRegion,regionNumber,1)
-
-
-            UpdateDictKeyValue(rrOfRegion,regionNumber,(row - rAVG)**2)
-            UpdateDictKeyValue(rcOfRegion,regionNumber,(row - rAVG)*(column - cAVG))
-            UpdateDictKeyValue(ccOfRegion,regionNumber,(column - cAVG)**2)
+                if shouldDilate:
+                    image3[y,x] = ForegroundPixelValue
 
 
-# Fifth Pass - Walk Along Perimeter
+    # io.imshow(image3)
+    # io.show()
 
-PerimeterOfRegion = {}
+    image = image3
 
-index = 0
-for y in range(NumberOfRows):
-    for x in range(NumberOfColumns):
+    #initialize region tag / interval
+    RegionInterval = 1
+    global CurrentRegion
+    CurrentRegion= 2
+    newSection = False
 
-        regionPerimeterNumber = PerimeterImage[y,x]
+    testDict = {}
 
-        if regionPerimeterNumber == PerimeterRegionID:
+    #first pass
+    for y in range(NumberOfRows):
+        for x in range(NumberOfColumns):
+            if image[y,x] == ForegroundPixelValue:
 
-            #Check original image to see what region it is
-            InnerRegionValue = CheckNeighborPixels(y,x, image, False)
+                LowestNeighbor = CheckNeighborPixels(y,x,image, True)
 
-            pInitCheck = PerimeterOfRegion.get(InnerRegionValue)
+                if LowestNeighbor >= CurrentRegion:
+                    image[y,x] = CurrentRegion
+                    newSection = True
 
-            if pInitCheck == None and InnerRegionValue != PerimeterRegionID:
+            elif newSection:
+                CurrentRegion += RegionInterval
+                newSection = False
 
-                index += 1
+    lowestValueForRegion = {}
 
-                Circumference = CheckPerimeter(y,x,PerimeterImage,index)
+    # Second Pass over Image
+    for y in range(NumberOfRows):
+        for x in range(NumberOfColumns):
+            regionNumber = image[y,x]
+            value = testDict.get(regionNumber)
 
-                PerimeterOfRegion[InnerRegionValue] = Circumference
+            temp = value
+            while temp != None:
+                temp = testDict.get(temp)
+                if temp != None:
+                    value = temp
 
-STDofRDRegionValue = {}
-
-# STD of radial distance
-for y in range(NumberOfRows):
-    for x in range(NumberOfColumns):
-
-        regionNumber = image[y,x]
-        regionPixelNumber = PerimeterImage[y,x]
-        row = y
-        column = x
-
-        if regionNumber != 0 and regionNumber != 1:
-
-            Area = AreaOfRegion[regionNumber]
-            RowCount = RowCountOfRegion[regionNumber]
-            ColumnCount = ColumnCountOfRegion[regionNumber]
-
-            rAVG = RowCount/float(Area)
-            cAVG = ColumnCount/float(Area)
-
-            if regionPixelNumber == PerimeterRegionID:
-
-                PerimeterPixelCount = PerimeterPixelCountOfRegion[regionNumber]
-
-                MRD = mrdOfRegion[regionNumber]/float(PerimeterPixelCount)
-
-                distance = DistanceBetweenTwoPoints(y,x,rAVG,cAVG)
-
-                UpdateDictKeyValue(STDofRDRegionValue,regionNumber,(distance-MRD)**2)
+            if value != None:
+                image[y,x] = value
 
 
-print("Number Of Regions:", len(SetOfRegions))
+    SetOfRegions = set()
+
+    global PerimeterRegionID
+    PerimeterRegionID = 50
+
+    AreaOfRegion = {}
+    RowCountOfRegion = {}
+    ColumnCountOfRegion = {}
+
+    PerimeterImage = image.copy()
+
+    # Third Pass over Image to Count Number of Regions
+    for y in range(NumberOfRows):
+        for x in range(NumberOfColumns):
+
+            regionNumber = image[y,x]
+
+            if regionNumber != 0 and regionNumber != 1:
+
+                lowestNeighbor = Check4NeighborPixels(y,x,image)
+
+                if lowestNeighbor == BackgroundPixelValue:
+                    PerimeterImage[y,x] = PerimeterRegionID
+                else:
+                    PerimeterImage[y,x] = regionNumber
+
+                SetOfRegions.add(int(regionNumber))
+
+                UpdateDictKeyValue(AreaOfRegion,regionNumber,1)
+                UpdateDictKeyValue(RowCountOfRegion,regionNumber,y)
+                UpdateDictKeyValue(ColumnCountOfRegion,regionNumber,x)
 
 
-index = 1
-for region in SetOfRegions:
-    Area = AreaOfRegion[region]
-    RowCount = RowCountOfRegion[region]
-    ColumnCount = ColumnCountOfRegion[region]
-    PerimeterCount = PerimeterOfRegion[region]
-    PerimeterPixelCount = PerimeterPixelCountOfRegion[region]
-    PartialSTDofRad = STDofRDRegionValue[region]
+    rrOfRegion = {}
+    rcOfRegion = {}
+    ccOfRegion = {}
+    mrdOfRegion = {}
+    PerimeterPixelCountOfRegion = {}
 
-    Mrr = rrOfRegion[region]/float(Area)
-    Mrc = rcOfRegion[region]/float(Area)
-    Mcc = ccOfRegion[region]/float(Area)
-    MRD = mrdOfRegion[region]/float(PerimeterPixelCount)
-    STDofRad = (PartialSTDofRad/float(PerimeterPixelCount))**0.5
+    # Fourth Pass for more stats
+    for y in range(NumberOfRows):
+        for x in range(NumberOfColumns):
 
-    IMax = ((Mrr+Mcc)/2.0) + (((Mrr-Mcc)/2.0)**2+Mrc**2)**0.5
-    IMin = ((Mrr+Mcc)/2.0) - (((Mrr-Mcc)/2.0)**2+Mrc**2)**0.5
+            regionNumber = image[y,x]
+            regionPixelNumber = PerimeterImage[y,x]
+            row = y
+            column = x
 
-    Circularity = MRD/STDofRad
+            if regionNumber != 0 and regionNumber != 1:
 
-    rAVG = RowCount/float(Area)
-    cAVG = ColumnCount/float(Area)
+                Area = AreaOfRegion[regionNumber]
+                RowCount = RowCountOfRegion[regionNumber]
+                ColumnCount = ColumnCountOfRegion[regionNumber]
 
-    ps1 = "Region " + str(index) + " Info : "
-    ps2 = " Area " + str(RoundFloat(Area))
-    ps3 = " r Average " + str(RoundFloat(rAVG))
-    ps4 = " c Average " + str(RoundFloat(cAVG))
-    ps5 = " Mrr " + str(RoundFloat(Mrr))
-    ps6 = " Mrc " + str(RoundFloat(Mrc))
-    ps7 = " Mcc " + str(RoundFloat(Mcc))
-    ps8 = " Perimeter " + str(RoundFloat(PerimeterCount))
-    ps9 = " MRD " + str(RoundFloat(MRD))
-    ps10 = " STD of Radial Dist " + str(RoundFloat(STDofRad))
-    ps11 = " Circularity " + str(RoundFloat(Circularity))
-    ps12 = " Max Moment of Inertia " + str(RoundFloat(IMax))
-    ps13 = " Min Moment of Inertia " + str(RoundFloat(IMin))
+                rAVG = RowCount/float(Area)
+                cAVG = ColumnCount/float(Area)
 
-    print(ps1)
-    print(ps2)
-    print(ps3)
-    print(ps4)
-    print(ps5)
-    print(ps6)
-    print(ps7)
-    print(ps8)
-    print(ps9)
-    print(ps10)
-    print(ps11)
-    print(ps12)
-    print(ps13)
-    print("")
-    index += 1
+                if regionPixelNumber == PerimeterRegionID:
+
+                    distance = DistanceBetweenTwoPoints(y,x,rAVG,cAVG)
+
+                    UpdateDictKeyValue(mrdOfRegion,regionNumber,distance)
+                    UpdateDictKeyValue(PerimeterPixelCountOfRegion,regionNumber,1)
 
 
-# io.imshow(image, cmap=plt.cm.cubehelix, interpolation='none', vmin = 0, vmax = 8, origin='upper')
-# io.show()
+                UpdateDictKeyValue(rrOfRegion,regionNumber,(row - rAVG)**2)
+                UpdateDictKeyValue(rcOfRegion,regionNumber,(row - rAVG)*(column - cAVG))
+                UpdateDictKeyValue(ccOfRegion,regionNumber,(column - cAVG)**2)
 
-io.imshow(PerimeterImage, cmap=plt.cm.cubehelix, interpolation='none', vmin = 0, vmax = PerimeterRegionID, origin='upper')
-io.show()
+
+    # Fifth Pass - Walk Along Perimeter
+
+    PerimeterOfRegion = {}
+
+    index = 0
+    for y in range(NumberOfRows):
+        for x in range(NumberOfColumns):
+
+            regionPerimeterNumber = PerimeterImage[y,x]
+
+            if regionPerimeterNumber == PerimeterRegionID:
+
+                #Check original image to see what region it is
+                InnerRegionValue = CheckNeighborPixels(y,x, image, False)
+
+                pInitCheck = PerimeterOfRegion.get(InnerRegionValue)
+
+                if pInitCheck == None and InnerRegionValue != PerimeterRegionID:
+
+                    index += 1
+
+                    Circumference = CheckPerimeter(y,x,PerimeterImage,index)
+
+                    PerimeterOfRegion[InnerRegionValue] = Circumference
+
+    STDofRDRegionValue = {}
+
+    # STD of radial distance
+    for y in range(NumberOfRows):
+        for x in range(NumberOfColumns):
+
+            regionNumber = image[y,x]
+            regionPixelNumber = PerimeterImage[y,x]
+            row = y
+            column = x
+
+            if regionNumber != 0 and regionNumber != 1:
+
+                Area = AreaOfRegion[regionNumber]
+                RowCount = RowCountOfRegion[regionNumber]
+                ColumnCount = ColumnCountOfRegion[regionNumber]
+
+                rAVG = RowCount/float(Area)
+                cAVG = ColumnCount/float(Area)
+
+                if regionPixelNumber == PerimeterRegionID:
+
+                    PerimeterPixelCount = PerimeterPixelCountOfRegion[regionNumber]
+
+                    MRD = mrdOfRegion[regionNumber]/float(PerimeterPixelCount)
+
+                    distance = DistanceBetweenTwoPoints(y,x,rAVG,cAVG)
+
+                    UpdateDictKeyValue(STDofRDRegionValue,regionNumber,(distance-MRD)**2)
+
+
+    print("Number Of Regions:", len(SetOfRegions))
+
+
+    Image1FeatureVector = {}
+    Image2FeatureVector = {}
+
+    index = 1
+    for region in SetOfRegions:
+        Area = AreaOfRegion[region]
+        RowCount = RowCountOfRegion[region]
+        ColumnCount = ColumnCountOfRegion[region]
+        PerimeterCount = PerimeterOfRegion[region]
+        PerimeterPixelCount = PerimeterPixelCountOfRegion[region]
+        PartialSTDofRad = STDofRDRegionValue[region]
+
+        Mrr = rrOfRegion[region]/float(Area)
+        Mrc = rcOfRegion[region]/float(Area)
+        Mcc = ccOfRegion[region]/float(Area)
+        MRD = mrdOfRegion[region]/float(PerimeterPixelCount)
+        STDofRad = (PartialSTDofRad/float(PerimeterPixelCount))**0.5
+
+        IMax = ((Mrr+Mcc)/2.0) + (((Mrr-Mcc)/2.0)**2+Mrc**2)**0.5
+        IMin = ((Mrr+Mcc)/2.0) - (((Mrr-Mcc)/2.0)**2+Mrc**2)**0.5
+
+        Circularity = MRD/STDofRad
+
+        rAVG = RowCount/float(Area)
+        cAVG = ColumnCount/float(Area)
+
+        Image1FeatureVector[regionNumber] = [Area, Mrr + Mrc + Mcc, PerimeterCount, MRD, STDofRad, Circularity, IMax, IMin]
+
+        ps1 = "Region " + str(index) + " Info : "
+        ps2 = " Area " + str(RoundFloat(Area))
+        ps3 = " r Average " + str(RoundFloat(rAVG))
+        ps4 = " c Average " + str(RoundFloat(cAVG))
+        ps5 = " Mrr " + str(RoundFloat(Mrr))
+        ps6 = " Mrc " + str(RoundFloat(Mrc))
+        ps7 = " Mcc " + str(RoundFloat(Mcc))
+        ps8 = " Perimeter " + str(RoundFloat(PerimeterCount))
+        ps9 = " MRD " + str(RoundFloat(MRD))
+        ps10 = " STD of Radial Dist " + str(RoundFloat(STDofRad))
+        ps11 = " Circularity " + str(RoundFloat(Circularity))
+        ps12 = " Max Moment of Inertia " + str(RoundFloat(IMax))
+        ps13 = " Min Moment of Inertia " + str(RoundFloat(IMin))
+
+        print(ps1)
+        print(ps2)
+        print(ps3)
+        print(ps4)
+        print(ps5)
+        print(ps6)
+        print(ps7)
+        print(ps8)
+        print(ps9)
+        print(ps10)
+        print(ps11)
+        print(ps12)
+        print(ps13)
+        print("")
+        index += 1
+
+
+    io.imshow(image, cmap=plt.cm.cubehelix, interpolation='none', vmin = 0, vmax = 8, origin='upper')
+    io.show()
+
+    # io.imshow(PerimeterImage, cmap=plt.cm.cubehelix, interpolation='none', vmin = 0, vmax = PerimeterRegionID, origin='upper')
+    # io.show()
+
+fileName = 'hw2-2B.jpg'
+ProcessImageWithName(fileName)
