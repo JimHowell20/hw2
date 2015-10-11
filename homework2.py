@@ -24,7 +24,7 @@ def UpdateDictKeyValue(dictionary,key,value):
 
 
 def RoundFloat(x):
-    return  int((x * 100) + 0.5) / 100.0
+    return  round(x,1)
 
 def DistanceBetweenTwoPoints(x1,y1,x2,y2):
     return ((x2-x1)**2+(y2-y1)**2)**0.5
