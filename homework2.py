@@ -543,9 +543,9 @@ def ProcessImageWithName(name, number):
         cAVG = ColumnCount/float(Area)
 
         if (number == 1):
-            Image1FeatureVector[region] = [Area, Mrr + Mrc + Mcc, PerimeterCount, MRD, STDofRad, Circularity, IMax, IMin]
+            Image1FeatureVector[index] = [Area, PerimeterCount, MRD, STDofRad, Circularity, IMax, IMin]
         else:
-            Image2FeatureVector[region] = [Area, Mrr + Mrc + Mcc, PerimeterCount, MRD, STDofRad, Circularity, IMax, IMin]
+            Image2FeatureVector[index] = [Area, PerimeterCount, MRD, STDofRad, Circularity, IMax, IMin]
 
         ps1 = "Region " + str(index) + " Info : "
         ps2 = " Area " + str(RoundFloat(Area))
@@ -595,14 +595,30 @@ fileName2 = 'hw2-2B.jpg'
 image1Regions = ProcessImageWithName(fileName1 ,1)
 image2Regions = ProcessImageWithName(fileName2 ,0)
 
-for r1 in image1Regions:
-    for r2 in image2Regions:
-        v1 = Image1FeatureVector.get(r1)
-        v2 = Image2FeatureVector.get(r2)
+EqualRegions = []
+
+for r1 in range(len(image1Regions)):
+
+    r1Index = r1 + 1
+    minDistance = 1000
+    minR = None
+    v1 = Image1FeatureVector.get(r1Index)
+
+    for r2 in range(len(image2Regions)):
+
+        r2index = r2 + 1
+        v2 = Image2FeatureVector.get(r2index)
 
         if (v1 != None and v2 != None):
 
-            distance =FeatureVectorDistance(v1,v2)
-            print("distance",distance)
+            distance = FeatureVectorDistance(v1,v2)
+
+            if (distance < minDistance):
+                minDistance = distance
+                minR = r2index
+
+    EqualRegions.append((r1Index,minR))
 
 
+
+print("equal Regions",EqualRegions)
