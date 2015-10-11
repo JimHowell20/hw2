@@ -283,6 +283,7 @@ def Check4NeighborPixels(y,x,array):
 
 def ProcessImageWithName(name, number):
     #START of PROGRAM
+    global image
     image = io.imread(name)
     image = rgb2gray(image)
 
@@ -544,8 +545,10 @@ def ProcessImageWithName(name, number):
 
         if (number == 1):
             Image1FeatureVector[region] = [Area, PerimeterCount, MRD, STDofRad, Circularity, IMax, IMin]
+            Image1Centroids[region] = [rAVG, cAVG]
         else:
             Image2FeatureVector[region] = [Area, PerimeterCount, MRD, STDofRad, Circularity, IMax, IMin]
+            Image2Centroids[region] = [rAVG, cAVG]
 
         ps1 = "Region " + str(index) + " Info : "
         ps2 = " Area " + str(RoundFloat(Area))
@@ -589,6 +592,9 @@ def ProcessImageWithName(name, number):
 Image1FeatureVector = {}
 Image2FeatureVector = {}
 
+Image1Centroids = {}
+Image2Centroids = {}
+
 fileName1 = 'hw2-2A.jpg'
 fileName2 = 'hw2-2B.jpg'
 
@@ -618,5 +624,31 @@ for r1 in image1Regions:
 
     EqualRegions.append((r1,minR))
 
-
 print("equal Regions",EqualRegions)
+
+
+for x in EqualRegions:
+
+    region1 = x[0]
+    region2 = x[1]
+
+    centroid1 = Image1Centroids[region1]
+    centroid2 = Image2Centroids[region2]
+
+    r1 = centroid1[0]
+    c1 = centroid1[1]
+
+    r2 = centroid2[0]
+    c2 = centroid2[1]
+
+    distance = DistanceBetweenTwoPoints(r1,c1,r2,c2)
+
+    ps = "Centroid Distance between region " + str(region1) + " in Image 1 and region " + str(region2) + " in image 2: " + str(RoundFloat(distance))
+
+    print(ps)
+
+
+
+
+# io.imshow(image, cmap=plt.cm.cubehelix, interpolation='none', vmin = 0, vmax = 8, origin='upper')
+# io.show()
