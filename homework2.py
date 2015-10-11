@@ -509,6 +509,9 @@ for region in SetOfRegions:
     MRD = mrdOfRegion[region]/float(PerimeterPixelCount)
     STDofRad = (PartialSTDofRad/float(PerimeterPixelCount))**0.5
 
+    IMax = ((Mrr+Mcc)/2.0) + (((Mrr-Mcc)/2.0)**2+Mrc**2)**0.5
+    IMin = ((Mrr+Mcc)/2.0) - (((Mrr-Mcc)/2.0)**2+Mrc**2)**0.5
+
     Circularity = MRD/STDofRad
 
     rAVG = RowCount/float(Area)
@@ -525,6 +528,8 @@ for region in SetOfRegions:
     ps9 = " MRD " + str(RoundFloat(MRD))
     ps10 = " STD of Radial Dist " + str(RoundFloat(STDofRad))
     ps11 = " Circularity " + str(RoundFloat(Circularity))
+    ps12 = " Max Moment of Inertia " + str(RoundFloat(IMax))
+    ps13 = " Min Moment of Inertia " + str(RoundFloat(IMin))
 
     print(ps1)
     print(ps2)
@@ -537,6 +542,8 @@ for region in SetOfRegions:
     print(ps9)
     print(ps10)
     print(ps11)
+    print(ps12)
+    print(ps13)
     print("")
     index += 1
 
